@@ -1,0 +1,84 @@
+{
+  "name": "antigravity-element-selector",
+  "displayName": "HTML Element Selector & Modifier",
+  "description": "直接选中 HTML 元素并通过 AI 修改",
+  "version": "1.0.0",
+  "publisher": "antigravity",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antigravity/element-selector"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:html",
+    "onCommand:elementSelector.start"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "elementSelector.start",
+        "title": "选择 HTML 元素",
+        "category": "Element Selector",
+        "icon": "$(target)"
+      },
+      {
+        "command": "elementSelector.openPreview",
+        "title": "打开预览并选择元素",
+        "category": "Element Selector"
+      },
+      {
+        "command": "elementSelector.clearSelection",
+        "title": "清除选择",
+        "category": "Element Selector"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "elementSelector.start",
+          "when": "resourceLangId == html",
+          "group": "1_modification"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "elementSelector.openPreview",
+          "when": "resourceLangId == html",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "elementSelector.start",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorTextFocus && resourceLangId == html"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^6.x",
+    "@typescript-eslint/parser": "^6.x",
+    "eslint": "^8.x",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {}
+}
