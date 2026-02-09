@@ -121,9 +121,9 @@ npm run package
 webSelect/
 ├── src/
 │   ├── extension.ts          # 扩展主入口
-│   └── webview/              # Webview 资源 (待创建)
-│       └── preview.html      # 预览模板
+│   └── webviewContent.ts     # Webview 内容生成器
 ├── out/                      # 编译输出
+├── test-web/                 # Web 测试文件
 ├── package.json              # 扩展配置
 ├── tsconfig.json             # TypeScript 配置
 └── README.md                 # 本文档
@@ -141,9 +141,23 @@ npm run compile
 
 ### 调试
 
-1. 在 VSCode/Antigravity 中打开项目
-2. 按 `F5` 启动扩展开发主机
-3. 在新窗口中测试扩展
+1. **在 VSCode/Antigravity 中打开项目**
+   - 打开 `webSelect` 文件夹作为工作区
+
+2. **启动扩展开发主机**
+   - 按 `F5`（或选择菜单：运行 > 启动调试）
+   - 首次按 `F5` 时，会自动使用项目中的 `.vscode/launch.json` 配置
+   - 会自动编译 TypeScript 代码（如果尚未编译）
+
+3. **在新窗口中测试扩展**
+   - 启动后会自动打开一个新的 VSCode 窗口（标题显示 `[扩展开发主机]`）
+   - 在这个新窗口中，扩展已经被加载
+   - 打开任意 HTML 文件，测试扩展功能
+
+**常见问题：**
+- 如果按 `F5` 没反应，检查是否正确打开了项目文件夹（不是单个文件）
+- 确保 `.vscode/launch.json` 文件存在
+- **Mac 用户**：可能需要使用 `Fn+F5`，或在系统偏好设置中启用 F 键作为标准功能键
 
 ### 打包
 
@@ -203,7 +217,7 @@ MIT
 
 ## 更新日志
 
-### 1.0.0 (2026-01-20)
+### 1.0.0 (2026-02-09)
 
 - ✨ 初始版本发布
 - ✅ Phase 1 MVP 功能实现
