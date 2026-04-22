@@ -2,7 +2,7 @@
   "name": "antigravity-element-selector",
   "displayName": "HTML Element Selector & Modifier",
   "description": "直接选中 HTML 元素并通过 AI 修改",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "antigravity",
   "repository": {
     "type": "git",
