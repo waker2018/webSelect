@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920">
+    <title>行为模型库 - TS综合集成测试系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 行为流程编辑器样式 */
+        .flow-canvas {
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(circle, rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px, 40px 40px, 40px 40px;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            overflow: auto;
+        }
+
+        .flow-container {
+            position: relative;
+            min-width: 900px;
+            min-height: 500px;
+            padding: 20px;
+        }
+
+        /* 流程节点 */
+        .flow-node {
+            position: absolute;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            width: 160px;
+            cursor: move;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .flow-node:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .flow-node.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+
+        .flow-node-header {
+            padding: 10px 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border-bottom: 1px solid var(--border);
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flow-node-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .flow-node-icon.start {
+            background: var(--success);
+            color: white;
+        }
+
+        .flow-node-icon.end {
+            background: var(--danger);
+            color: white;
+        }
+
+        .flow-node-icon.action {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .flow-node-icon.condition {
+            background: var(--warning);
+            color: var(--bg-dark);
+        }
+
+        .flow-node-icon.loop {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .flow-node-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .flow-node-body {
+            padding: 10px 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .flow-node-port {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            cursor: crosshair;
+        }
+
+        .flow-node-port.input {
+            top: 50%;
+            left: -6px;
+            transform: translateY(-50%);
+        }
+
+        .flow-node-port.output {
+            top: 50%;
+            right: -6px;
+            transform: translateY(-50%);
+        }
+
+        .flow-node-port.output-yes {
+            bottom: 10px;
+            right: -6px;
+        }
+
+        .flow-node-port.output-no {
+            bottom: 30px;
+            right: -6px;
+        }
+
+        /* 开始/结束节点 */
+        .flow-node.start,
+        .flow-node.end {
+            width: 100px;
+            border-radius: 50px;
+        }
+
+        .flow-node.start .flow-node-header,
+        .flow-node.end .flow-node-header {
+            border-radius: 50px;
+            justify-content: center;
+            border-bottom: none;
+        }
+
+        /* 条件节点 */
+        .flow-node.condition {
+            width: 140px;
+            background: var(--bg-card);
+            transform: rotate(0deg);
+        }
+
+        .flow-node.condition .flow-node-header {
+            background: rgba(255, 149, 0, 0.2);
+        }
+
+        /* 循环节点 */
+        .flow-node.loop .flow-node-header {
+            background: rgba(155, 89, 182, 0.2);
+        }
+
+        /* 连接线 */
+        .flow-line {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .flow-line path {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+        }
+
+        .flow-line.yes path {
+            stroke: var(--success);
+        }
+
+        .flow-line.no path {
+            stroke: var(--danger);
+        }
+
+        /* 行为类型卡片 */
+        .behavior-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+
+        .behavior-card:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .behavior-card:active {
+            cursor: grabbing;
+        }
+
+        .behavior-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .behavior-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .behavior-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .behavior-card-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 42px;
+        }
+
+        /* 节点参数面板 */
+        .param-section {
+            margin-bottom: 16px;
+        }
+
+        .param-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .param-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .param-label {
+            width: 80px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .param-input {
+            flex: 1;
+            padding: 6px 10px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+
+        .param-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* 工具栏 */
+        .flow-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .flow-toolbar .tool-group {
+            display: flex;
+            gap: 4px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border);
+            margin-right: 12px;
+        }
+
+        .flow-toolbar .tool-group:last-child {
+            border-right: none;
+            margin-right: 0;
+        }
+
+        /* 缩略图 */
+        .flow-minimap {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            width: 200px;
+            height: 120px;
+            background: rgba(17, 24, 32, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .flow-minimap-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .flow-minimap-viewport {
+            position: absolute;
+            border: 2px solid var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span>TS综合集成测试系统</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item active">态势信息激励</a>
+            <a href="../综合测试数据管理模块原型/index.html" class="nav-item">数据管理分析</a>
+            <a href="evaluation.html" class="nav-item">测试评估</a>
+            <a href="#" class="nav-item">系统配置</a>
+        </div>
+        <div class="nav-right">
+            <div class="system-time" id="systemTime">2024-12-19 09:00:00</div>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>管理员</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="panel-layout">
+        <!-- 左侧面板 - 行为模型库 -->
+        <div class="panel-left" style="width: 300px;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-cubes"></i>
+                    行为模型库
+                </div>
+            </div>
+            <div class="panel-content">
+                <!-- 搜索框 -->
+                <div class="search-box" style="margin-bottom: 16px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索行为模型...">
+                </div>
+
+                <!-- 流程控制类 -->
+                <div style="margin-bottom: 20px; background: white;">
+                    <div class="param-section-title" style="margin-bottom: 10px;">
+                        <i class="fas fa-sitemap" style="color: var(--primary);"></i>
+                        流程控制
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="start">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: var(--success);"><i class="fas fa-play"
+                                    style="color: white;"></i></div>
+                            <span class="behavior-card-title">开始节点</span>
+                        </div>
+                        <div class="behavior-card-desc">流程起始点</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="end">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: var(--danger);"><i class="fas fa-stop"
+                                    style="color: white;"></i></div>
+                            <span class="behavior-card-title">结束节点</span>
+                        </div>
+                        <div class="behavior-card-desc">流程终止点</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="condition">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: var(--warning);"><i
+                                    class="fas fa-code-branch" style="color: var(--bg-dark);"></i></div>
+                            <span class="behavior-card-title">条件分支</span>
+                        </div>
+                        <div class="behavior-card-desc">根据条件选择执行路径</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="loop">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: #9b59b6;"><i class="fas fa-repeat"
+                                    style="color: white;"></i></div>
+                            <span class="behavior-card-title">循环控制</span>
+                        </div>
+                        <div class="behavior-card-desc">重复执行指定次数或条件</div>
+                    </div>
+                </div>
+
+                <!-- 行为活动类 -->
+                <div>
+                    <div class="param-section-title" style="margin-bottom: 10px;">
+                        <i class="fas fa-bolt" style="color: var(--warning);"></i>
+                        行为活动
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="move">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: rgba(0,212,255,0.2);"><i
+                                    class="fas fa-route" style="color: var(--primary);"></i></div>
+                            <span class="behavior-card-title">机动行为</span>
+                        </div>
+                        <div class="behavior-card-desc">控制平台移动到指定位置</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="attack">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: rgba(255,71,87,0.2);"><i
+                                    class="fas fa-crosshairs" style="color: #ff4757;"></i></div>
+                            <span class="behavior-card-title">打击行为</span>
+                        </div>
+                        <div class="behavior-card-desc">对目标实施火力打击</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="recon">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: rgba(48,209,88,0.2);"><i
+                                    class="fas fa-eye" style="color: var(--success);"></i></div>
+                            <span class="behavior-card-title">侦察行为</span>
+                        </div>
+                        <div class="behavior-card-desc">执行目标侦察或区域搜索</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="defend">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: rgba(55,66,250,0.2);"><i
+                                    class="fas fa-shield-halved" style="color: #3742fa;"></i></div>
+                            <span class="behavior-card-title">防护行为</span>
+                        </div>
+                        <div class="behavior-card-desc">执行防护或规避动作</div>
+                    </div>
+
+                    <div class="behavior-card" draggable="true" data-type="comm">
+                        <div class="behavior-card-header">
+                            <div class="behavior-card-icon" style="background: rgba(149,165,166,0.2);"><i
+                                    class="fas fa-satellite-dish" style="color: #95a5a6;"></i></div>
+                            <span class="behavior-card-title">通信行为</span>
+                        </div>
+                        <div class="behavior-card-desc">发送/接收通信或情报</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央区域 - 流程编辑画布 -->
+        <div class="panel-center">
+            <!-- 工具栏 -->
+            <div class="flow-toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn active" title="选择">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </button>
+                    <button class="tool-btn" title="连接">
+                        <i class="fas fa-project-diagram"></i>
+                    </button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn" title="撤销">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="tool-btn" title="重做">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn" title="放大">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="tool-btn" title="缩小">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="tool-btn" title="适应画布">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn" title="对齐">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="tool-btn" title="自动布局">
+                        <i class="fas fa-sitemap"></i>
+                    </button>
+                </div>
+
+                <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+                    <span style="color: var(--text-secondary); font-size: 13px;">当前流程:</span>
+                    <select class="form-control" style="width: 200px; padding: 6px 10px; font-size: 12px;">
+                        <option>装甲突击行为流程</option>
+                        <option>防御警戒行为流程</option>
+                        <option>侦察巡逻行为流程</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline">
+                        <i class="fas fa-plus"></i> 新建
+                    </button>
+                </div>
+            </div>
+
+            <!-- 流程画布 -->
+            <div class="flow-canvas" style="height: calc(100vh - 172px);">
+                <div class="flow-container">
+                    <!-- SVG连接线层 -->
+                    <svg class="flow-lines"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;">
+                        <!-- 开始 -> 侦察 -->
+                        <path d="M 140 80 C 150 80, 155 115, 160 115" fill="none" stroke="var(--primary)"
+                            stroke-width="2" marker-end="url(#arrowhead)" />
+                        <!-- 侦察 -> 条件判断 -->
+                        <path d="M 320 115 C 340 115, 350 175, 360 175" fill="none" stroke="var(--primary)"
+                            stroke-width="2" />
+                        <!-- 条件判断 Yes -> 打击 -->
+                        <path d="M 500 160 C 520 160, 530 115, 540 115" fill="none" stroke="var(--success)"
+                            stroke-width="2" />
+                        <!-- 条件判断 No -> 机动 -->
+                        <path d="M 500 190 C 520 190, 400 295, 380 295" fill="none" stroke="var(--danger)"
+                            stroke-width="2" />
+                        <!-- 打击 -> 通信 -->
+                        <path d="M 700 115 C 720 115, 690 195, 700 195" fill="none" stroke="var(--primary)"
+                            stroke-width="2" />
+                        <!-- 机动 -> 循环 -->
+                        <path d="M 300 290 C 280 290, 270 330, 260 330" fill="none" stroke="var(--primary)"
+                            stroke-width="2" />
+                        <!-- 循环 -> 侦察 -->
+                        <path d="M 220 300 C 200 300, 200 160, 220 115" fill="none" stroke="#9b59b6" stroke-width="2"
+                            stroke-dasharray="5,3" />
+                        <!-- 通信 -> 结束 -->
+                        <path d="M 860 195 C 870 195, 875 220, 880 220" fill="none" stroke="var(--primary)"
+                            stroke-width="2" />
+
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="var(--primary)" />
+                            </marker>
+                        </defs>
+                    </svg>
+
+                    <!-- 开始节点 -->
+                    <div class="flow-node start" style="left: 40px; top: 55px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon start"><i class="fas fa-play"></i></div>
+                            <span class="flow-node-title">开始</span>
+                        </div>
+                        <div class="flow-node-port output" style="right: -6px;"></div>
+                    </div>
+
+                    <!-- 侦察行为节点 -->
+                    <div class="flow-node selected" style="left: 160px; top: 70px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon action" style="background: rgba(48,209,88,0.8);"><i
+                                    class="fas fa-eye"></i></div>
+                            <span class="flow-node-title">侦察搜索</span>
+                        </div>
+                        <div class="flow-node-body">
+                            侦察距离: 5000m<br>
+                            搜索模式: 扇形
+                        </div>
+                        <div class="flow-node-port input"></div>
+                        <div class="flow-node-port output"></div>
+                    </div>
+
+                    <!-- 条件判断节点 -->
+                    <div class="flow-node condition" style="left: 360px; top: 130px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon condition"><i class="fas fa-code-branch"></i></div>
+                            <span class="flow-node-title">发现目标?</span>
+                        </div>
+                        <div class="flow-node-body">
+                            条件: 目标距离 &lt; 3km
+                        </div>
+                        <div class="flow-node-port input"></div>
+                        <div class="flow-node-port output-yes" style="bottom: 35px;" title="是">
+                            <span
+                                style="position: absolute; right: 16px; font-size: 10px; color: var(--success);">Y</span>
+                        </div>
+                        <div class="flow-node-port output-no" style="bottom: 10px;" title="否">
+                            <span
+                                style="position: absolute; right: 16px; font-size: 10px; color: var(--danger);">N</span>
+                        </div>
+                    </div>
+
+                    <!-- 打击行为节点 -->
+                    <div class="flow-node" style="left: 540px; top: 70px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon action" style="background: rgba(255,71,87,0.8);"><i
+                                    class="fas fa-crosshairs"></i></div>
+                            <span class="flow-node-title">火力打击</span>
+                        </div>
+                        <div class="flow-node-body">
+                            打击方式: 精确制导<br>
+                            弹药类型: 反装甲
+                        </div>
+                        <div class="flow-node-port input"></div>
+                        <div class="flow-node-port output"></div>
+                    </div>
+
+                    <!-- 机动行为节点 -->
+                    <div class="flow-node" style="left: 300px; top: 250px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon action"><i class="fas fa-route"></i></div>
+                            <span class="flow-node-title">战术机动</span>
+                        </div>
+                        <div class="flow-node-body">
+                            机动速度: 45km/h<br>
+                            路径类型: 隐蔽迂回
+                        </div>
+                        <div class="flow-node-port input"></div>
+                        <div class="flow-node-port output"></div>
+                    </div>
+
+                    <!-- 循环节点 -->
+                    <div class="flow-node loop" style="left: 180px; top: 280px; width: 80px;">
+                        <div class="flow-node-header" style="justify-content: center;">
+                            <div class="flow-node-icon loop"><i class="fas fa-repeat"></i></div>
+                        </div>
+                        <div class="flow-node-body" style="text-align: center; font-size: 10px;">
+                            循环3次
+                        </div>
+                        <div class="flow-node-port input"></div>
+                        <div class="flow-node-port output" style="top: 30%;"></div>
+                    </div>
+
+                    <!-- 通信行为节点 -->
+                    <div class="flow-node" style="left: 700px; top: 150px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon action" style="background: rgba(149,165,166,0.8);"><i
+                                    class="fas fa-satellite-dish"></i></div>
+                            <span class="flow-node-title">态势上报</span>
+                        </div>
+                        <div class="flow-node-body">
+                            通信对象: 上级指挥<br>
+                            内容类型: 战果报告
+                        </div>
+                        <div class="flow-node-port input"></div>
+                        <div class="flow-node-port output"></div>
+                    </div>
+
+                    <!-- 结束节点 -->
+                    <div class="flow-node end" style="left: 880px; top: 175px;">
+                        <div class="flow-node-header">
+                            <div class="flow-node-icon end"><i class="fas fa-stop"></i></div>
+                            <span class="flow-node-title">结束</span>
+                        </div>
+                        <div class="flow-node-port input"></div>
+                    </div>
+                </div>
+
+                <!-- 缩略图 -->
+                <div class="flow-minimap">
+                    <div class="flow-minimap-content">
+                        <!-- 简化的节点表示 -->
+                        <div
+                            style="position: absolute; left: 10px; top: 20px; width: 12px; height: 12px; background: var(--success); border-radius: 50%;">
+                        </div>
+                        <div
+                            style="position: absolute; left: 35px; top: 18px; width: 20px; height: 14px; background: var(--primary); border-radius: 2px;">
+                        </div>
+                        <div
+                            style="position: absolute; left: 70px; top: 35px; width: 16px; height: 16px; background: var(--warning); transform: rotate(45deg);">
+                        </div>
+                        <div
+                            style="position: absolute; left: 105px; top: 18px; width: 20px; height: 14px; background: #ff4757; border-radius: 2px;">
+                        </div>
+                        <div
+                            style="position: absolute; left: 65px; top: 65px; width: 20px; height: 14px; background: var(--primary); border-radius: 2px;">
+                        </div>
+                        <div
+                            style="position: absolute; left: 45px; top: 75px; width: 10px; height: 10px; background: #9b59b6; border-radius: 2px;">
+                        </div>
+                        <div
+                            style="position: absolute; left: 140px; top: 50px; width: 20px; height: 14px; background: #95a5a6; border-radius: 2px;">
+                        </div>
+                        <div
+                            style="position: absolute; left: 175px; top: 50px; width: 12px; height: 12px; background: var(--danger); border-radius: 50%;">
+                        </div>
+
+                        <!-- 视口框 -->
+                        <div class="flow-minimap-viewport" style="left: 5px; top: 10px; width: 100px; height: 60px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 - 节点属性 -->
+        <div class="panel-right" style="width: 340px;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-sliders"></i>
+                    节点属性
+                </div>
+            </div>
+            <div class="panel-content">
+                <!-- 节点基本信息 -->
+                <div class="param-section">
+                    <div class="param-section-title">基本信息</div>
+                    <div class="param-row">
+                        <span class="param-label">节点名称</span>
+                        <input type="text" class="param-input" value="侦察搜索">
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">节点类型</span>
+                        <select class="param-input">
+                            <option>机动行为</option>
+                            <option>打击行为</option>
+                            <option selected>侦察行为</option>
+                            <option>防护行为</option>
+                            <option>通信行为</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">节点ID</span>
+                        <input type="text" class="param-input" value="RECON_001" readonly
+                            style="background: var(--bg-panel);">
+                    </div>
+                </div>
+
+                <!-- 侦察参数 -->
+                <div class="param-section">
+                    <div class="param-section-title">侦察参数</div>
+                    <div class="param-row">
+                        <span class="param-label">侦察距离</span>
+                        <input type="number" class="param-input" value="5000">
+                        <span style="margin-left: 4px; color: var(--text-muted); font-size: 11px;">m</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">搜索模式</span>
+                        <select class="param-input">
+                            <option selected>扇形搜索</option>
+                            <option>圆形搜索</option>
+                            <option>定向搜索</option>
+                            <option>路径搜索</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">扫描角度</span>
+                        <input type="number" class="param-input" value="120">
+                        <span style="margin-left: 4px; color: var(--text-muted); font-size: 11px;">°</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">识别概率</span>
+                        <input type="number" class="param-input" value="85" min="0" max="100">
+                        <span style="margin-left: 4px; color: var(--text-muted); font-size: 11px;">%</span>
+                    </div>
+                </div>
+
+                <!-- 执行条件 -->
+                <div class="param-section">
+                    <div class="param-section-title">执行条件</div>
+                    <div class="param-row">
+                        <span class="param-label">前置条件</span>
+                        <select class="param-input">
+                            <option selected>无</option>
+                            <option>到达指定位置</option>
+                            <option>收到命令</option>
+                            <option>时间触发</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">超时时间</span>
+                        <input type="number" class="param-input" value="300">
+                        <span style="margin-left: 4px; color: var(--text-muted); font-size: 11px;">s</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">失败处理</span>
+                        <select class="param-input">
+                            <option>继续执行</option>
+                            <option selected>重试</option>
+                            <option>终止流程</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 输出定义 -->
+                <div class="param-section">
+                    <div class="param-section-title">输出定义</div>
+                    <div class="param-row">
+                        <span class="param-label">输出变量</span>
+                        <input type="text" class="param-input" value="detected_targets">
+                    </div>
+                    <div class="param-row">
+                        <span class="param-label">数据类型</span>
+                        <select class="param-input">
+                            <option selected>目标列表</option>
+                            <option>布尔值</option>
+                            <option>数值</option>
+                            <option>坐标</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> 应用
+                    </button>
+                    <button class="btn btn-outline" style="flex: 1;">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部流程管理栏 -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 100;">
+        <div class="panel-title">
+            <i class="fas fa-diagram-project"></i>
+            流程管理
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-file-import"></i> 导入
+            </button>
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-file-export"></i> 导出
+            </button>
+            <button class="btn btn-sm btn-primary">
+                <i class="fas fa-save"></i> 保存流程
+            </button>
+        </div>
+        <div class="divider" style="width: 1px; height: 30px; background: var(--border); margin: 0 16px;"></div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-sm btn-success">
+                <i class="fas fa-play"></i> 验证流程
+            </button>
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-bug"></i> 调试
+            </button>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 16px; align-items: center;">
+            <span class="status-badge info">
+                <i class="fas fa-cube"></i> 节点: 8
+            </span>
+            <span class="status-badge info">
+                <i class="fas fa-link"></i> 连接: 9
+            </span>
+            <span class="status-badge success">
+                <i class="fas fa-check-circle"></i> 流程有效
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // 更新系统时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+            document.getElementById('systemTime').textContent = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 节点选择
+        document.querySelectorAll('.flow-node').forEach(node => {
+            node.addEventListener('click', function () {
+                document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // 工具按钮切换
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const group = this.closest('.tool-group');
+                if (group) {
+                    group.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // 行为卡片拖拽 (简化示例)
+        document.querySelectorAll('.behavior-card').forEach(card => {
+            card.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/plain', this.dataset.type);
+                this.style.opacity = '0.5';
+            });
+            card.addEventListener('dragend', function () {
+                this.style.opacity = '1';
+            });
+        });
+    </script>
+</body>
+
+</html>

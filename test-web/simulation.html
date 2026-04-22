@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920">
+    <title>测试激励模拟仿真 - TS综合集成测试系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span>TS综合集成测试系统</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item active">态势信息激励</a>
+            <a href="../综合测试数据管理模块原型/index.html" class="nav-item">数据管理分析</a>
+            <a href="evaluation.html" class="nav-item">测试评估</a>
+            <a href="#" class="nav-item">系统配置</a>
+        </div>
+        <div class="nav-right">
+            <div class="system-time" id="systemTime">2024-12-19 09:00:00</div>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>管理员</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 仿真控制栏 - 固定在顶部导航下方 -->
+    <div class="simulation-controls" style="position: fixed; top: 60px; left: 0; right: 0; z-index: 100; margin: 0;">
+        <div class="sim-time-display">
+            <div class="sim-time-label">仿真时间</div>
+            <div class="sim-time-value" id="simTime">00:15:32</div>
+        </div>
+
+        <button class="sim-btn" title="后退">
+            <i class="fas fa-backward-step"></i>
+        </button>
+        <button class="sim-btn stop" title="停止" id="stopBtn">
+            <i class="fas fa-stop"></i>
+        </button>
+        <button class="sim-btn play" title="播放/暂停" id="playBtn">
+            <i class="fas fa-play" id="playIcon"></i>
+        </button>
+        <button class="sim-btn" title="前进">
+            <i class="fas fa-forward-step"></i>
+        </button>
+
+        <div class="sim-speed-control">
+            <label>速度:</label>
+            <select id="simSpeed">
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1x</option>
+                <option value="2">2x</option>
+                <option value="5">5x</option>
+                <option value="10">10x</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-left: 24px;">
+            <button class="btn btn-sm btn-outline" id="breakpointBtn">
+                <i class="fas fa-circle-pause"></i> 断点
+            </button>
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-flag-checkered"></i> 条件暂停
+            </button>
+        </div>
+
+        <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+            <span style="color: var(--text-secondary); font-size: 13px;">人机交互:</span>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="radio" name="hitl" value="in" checked style="accent-color: var(--primary);">
+                <span style="color: var(--text-primary); font-size: 13px;">人在回路</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="radio" name="hitl" value="out" style="accent-color: var(--primary);">
+                <span style="color: var(--text-primary); font-size: 13px;">自动运行</span>
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-left: 24px;">
+            <span class="status-badge success" id="simStatus">
+                <span class="monitor-dot" style="width: 6px; height: 6px;"></span>
+                运行中
+            </span>
+        </div>
+    </div>
+
+    <!-- 三栏布局 - 调整顶部边距以适应固定的控制栏 -->
+    <div class="panel-layout" style="margin-top: 0; padding-top: 142px; height: 100vh;">
+        <!-- 左侧面板 - 实体树 -->
+        <div class="panel-left" style="height: calc(100vh - 142px); position: fixed; top: 142px; left: 0;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-sitemap"></i>
+                    实体配置
+                </div>
+                <span class="tag" style="margin: 0;">256</span>
+            </div>
+            <div class="panel-content">
+                <!-- 搜索框 -->
+                <div class="search-box" style="margin-bottom: 16px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索实体...">
+                </div>
+
+                <!-- 实体树状图 -->
+                <div class="tree-view">
+                    <div class="tree-node">
+                        <div class="tree-node-header">
+                            <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                            <span class="tree-node-icon red"><i class="fas fa-flag"></i></span>
+                            <span class="tree-node-label">红方 (128)</span>
+                        </div>
+                        <div class="tree-node-children">
+                            <div class="tree-node">
+                                <div class="tree-node-header">
+                                    <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                                    <span class="tree-node-icon red"><i class="fas fa-truck-monster"></i></span>
+                                    <span class="tree-node-label">履带车辆 (32)</span>
+                                </div>
+                                <div class="tree-node-children">
+                                    <div class="tree-node">
+                                        <div class="tree-node-header selected">
+                                            <span class="tree-node-toggle"></span>
+                                            <span class="tree-node-icon red"><i class="fas fa-circle"></i></span>
+                                            <span class="tree-node-label">履带-001</span>
+                                            <span class="status-badge success"
+                                                style="font-size: 10px; padding: 2px 6px;">机动</span>
+                                        </div>
+                                    </div>
+                                    <div class="tree-node">
+                                        <div class="tree-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <span class="tree-node-icon red"><i class="fas fa-circle"></i></span>
+                                            <span class="tree-node-label">履带-002</span>
+                                            <span class="status-badge info"
+                                                style="font-size: 10px; padding: 2px 6px;">待命</span>
+                                        </div>
+                                    </div>
+                                    <div class="tree-node">
+                                        <div class="tree-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <span class="tree-node-icon red"><i class="fas fa-circle"></i></span>
+                                            <span class="tree-node-label">履带-003</span>
+                                            <span class="status-badge warning"
+                                                style="font-size: 10px; padding: 2px 6px;">侦察</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tree-node">
+                                <div class="tree-node-header">
+                                    <span class="tree-node-toggle"><i class="fas fa-caret-right"></i></span>
+                                    <span class="tree-node-icon red"><i class="fas fa-car-side"></i></span>
+                                    <span class="tree-node-label">轮式车辆 (24)</span>
+                                </div>
+                            </div>
+                            <div class="tree-node">
+                                <div class="tree-node-header">
+                                    <span class="tree-node-toggle"><i class="fas fa-caret-right"></i></span>
+                                    <span class="tree-node-icon red"><i class="fas fa-robot"></i></span>
+                                    <span class="tree-node-label">无人车 (18)</span>
+                                </div>
+                            </div>
+                            <div class="tree-node">
+                                <div class="tree-node-header">
+                                    <span class="tree-node-toggle"><i class="fas fa-caret-right"></i></span>
+                                    <span class="tree-node-icon red"><i class="fas fa-plane"></i></span>
+                                    <span class="tree-node-label">无人机 (22)</span>
+                                </div>
+                            </div>
+                            <div class="tree-node">
+                                <div class="tree-node-header">
+                                    <span class="tree-node-toggle"><i class="fas fa-caret-right"></i></span>
+                                    <span class="tree-node-icon red"><i class="fas fa-helicopter"></i></span>
+                                    <span class="tree-node-label">直升机 (12)</span>
+                                </div>
+                            </div>
+                            <div class="tree-node">
+                                <div class="tree-node-header">
+                                    <span class="tree-node-toggle"><i class="fas fa-caret-right"></i></span>
+                                    <span class="tree-node-icon red"><i class="fas fa-person-military-rifle"></i></span>
+                                    <span class="tree-node-label">人员 (20)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tree-node">
+                        <div class="tree-node-header">
+                            <span class="tree-node-toggle"><i class="fas fa-caret-right"></i></span>
+                            <span class="tree-node-icon blue"><i class="fas fa-flag"></i></span>
+                            <span class="tree-node-label">蓝方 (128)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央区域 - 动态地图显示 -->
+        <div class="panel-center" style="margin-left: 280px; margin-right: 320px;">
+            <div class="map-container" style="height: calc(100vh - 142px);">
+                <!-- 地图画布 -->
+                <div class="map-canvas">
+                    <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0;">
+                        <defs>
+                            <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(0,212,255,0.08)"
+                                    stroke-width="0.5" />
+                            </pattern>
+                            <!-- 雷达扫描效果 -->
+                            <radialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="rgba(0,212,255,0.3)" />
+                                <stop offset="100%" stop-color="rgba(0,212,255,0)" />
+                            </radialGradient>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+
+                        <!-- 地形 -->
+                        <g transform="translate(0, 0)">
+                            <!-- 山脉 -->
+                            <polygon points="900,450 970,300 1040,420 1110,280 1180,450" fill="rgba(26,35,50,0.7)"
+                                stroke="rgba(0,212,255,0.15)" />
+                            <!-- 河流 -->
+                            <path d="M800,50 Q860,180 820,320 Q900,450 880,550" stroke="rgba(0,153,204,0.5)"
+                                stroke-width="25" fill="none" stroke-linecap="round" />
+                            <!-- 道路网 -->
+                            <path d="M0,300 Q300,280 600,320 T1200,280" stroke="rgba(139,156,181,0.35)"
+                                stroke-width="15" fill="none" />
+                            <path d="M400,0 Q420,200 380,400 Q450,600 420,700" stroke="rgba(139,156,181,0.3)"
+                                stroke-width="10" fill="none" />
+                        </g>
+
+                        <!-- 作战区域 -->
+                        <polygon points="150,180 380,150 420,380 200,450 100,320" fill="rgba(255,71,87,0.08)"
+                            stroke="#ff4757" stroke-width="2" stroke-dasharray="10,5" />
+                        <polygon points="700,150 950,130 1000,400 750,450 650,300" fill="rgba(55,66,250,0.08)"
+                            stroke="#3742fa" stroke-width="2" stroke-dasharray="10,5" />
+
+                        <!-- 雷达范围效果 -->
+                        <g transform="translate(280, 300)">
+                            <circle r="80" fill="url(#radarGradient)" opacity="0.5">
+                                <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s"
+                                    repeatCount="indefinite" />
+                            </circle>
+                            <circle r="80" fill="none" stroke="rgba(0,212,255,0.3)" stroke-width="1"
+                                stroke-dasharray="5,5" />
+                        </g>
+
+                        <!-- 红方动态单位 -->
+                        <g id="redUnit1" transform="translate(200, 280)">
+                            <polygon points="0,-20 20,0 0,20 -20,0" fill="#ff4757" stroke="#ff6b81" stroke-width="2">
+                                <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite" />
+                            </polygon>
+                            <circle r="30" fill="none" stroke="rgba(255,71,87,0.3)" stroke-width="1">
+                                <animate attributeName="r" values="25;35;25" dur="2s" repeatCount="indefinite" />
+                                <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" />
+                            </circle>
+                            <!-- 运动轨迹 -->
+                            <path d="M0,0 L60,-30 L120,-20" stroke="#ff4757" stroke-width="2" fill="none"
+                                stroke-dasharray="5,3" opacity="0.6" />
+                        </g>
+
+                        <g transform="translate(280, 320)">
+                            <polygon points="0,-18 18,0 0,18 -18,0" fill="#ff4757" stroke="#ff6b81" stroke-width="2" />
+                        </g>
+
+                        <g transform="translate(340, 280)">
+                            <polygon points="0,-16 16,0 0,16 -16,0" fill="#ff4757" stroke="#ff6b81" stroke-width="2" />
+                        </g>
+
+                        <!-- 红方直升机 (动态) -->
+                        <g id="heliRed" transform="translate(300, 180)">
+                            <circle r="16" fill="#ff4757" stroke="#ff6b81" stroke-width="2" />
+                            <text x="0" y="5" text-anchor="middle" fill="white" font-size="12">H</text>
+                            <!-- 航线 -->
+                            <path d="M0,0 L150,50 L280,30" stroke="#ff4757" stroke-width="2" fill="none"
+                                stroke-dasharray="8,4" opacity="0.5" />
+                            <animateTransform attributeName="transform" type="translate"
+                                values="300,180;350,200;400,190" dur="10s" repeatCount="indefinite" />
+                        </g>
+
+                        <!-- 红方无人机群 -->
+                        <g transform="translate(380, 150)">
+                            <circle r="12" fill="#ff4757" stroke="#ff6b81" stroke-width="1.5" />
+                            <text x="0" y="4" text-anchor="middle" fill="white" font-size="9">U1</text>
+                        </g>
+                        <g transform="translate(410, 170)">
+                            <circle r="10" fill="#ff4757" stroke="#ff6b81" stroke-width="1.5" />
+                            <text x="0" y="3" text-anchor="middle" fill="white" font-size="8">U2</text>
+                        </g>
+                        <g transform="translate(360, 185)">
+                            <circle r="10" fill="#ff4757" stroke="#ff6b81" stroke-width="1.5" />
+                            <text x="0" y="3" text-anchor="middle" fill="white" font-size="8">U3</text>
+                        </g>
+
+                        <!-- 蓝方防御单位 -->
+                        <g transform="translate(800, 280)">
+                            <rect x="-22" y="-22" width="44" height="44" fill="#3742fa" stroke="#5352ed"
+                                stroke-width="2" />
+                            <text x="0" y="6" text-anchor="middle" fill="white" font-size="14"
+                                font-weight="bold">装</text>
+                        </g>
+
+                        <g transform="translate(860, 340)">
+                            <rect x="-18" y="-18" width="36" height="36" fill="#3742fa" stroke="#5352ed"
+                                stroke-width="2" />
+                            <text x="0" y="5" text-anchor="middle" fill="white" font-size="12"
+                                font-weight="bold">步</text>
+                        </g>
+
+                        <g transform="translate(920, 280)">
+                            <rect x="-16" y="-16" width="32" height="32" fill="#3742fa" stroke="#5352ed"
+                                stroke-width="2" />
+                            <text x="0" y="4" text-anchor="middle" fill="white" font-size="11"
+                                font-weight="bold">炮</text>
+                        </g>
+
+                        <!-- 交战区域标识 -->
+                        <g transform="translate(550, 300)">
+                            <circle r="50" fill="rgba(255,149,0,0.1)" stroke="#ff9500" stroke-width="2"
+                                stroke-dasharray="5,5">
+                                <animate attributeName="r" values="45;55;45" dur="1.5s" repeatCount="indefinite" />
+                            </circle>
+                            <text x="0" y="5" text-anchor="middle" fill="#ff9500" font-size="12"
+                                font-weight="bold">交战区</text>
+                        </g>
+
+                        <!-- 损伤标识 -->
+                        <g transform="translate(750, 380)">
+                            <rect x="-14" y="-14" width="28" height="28" fill="#3742fa" stroke="#5352ed"
+                                stroke-width="2" opacity="0.5" />
+                            <line x1="-20" y1="-20" x2="20" y2="20" stroke="#ff3b30" stroke-width="3" />
+                            <line x1="-20" y1="20" x2="20" y2="-20" stroke="#ff3b30" stroke-width="3" />
+                        </g>
+
+                        <!-- 指北针 -->
+                        <g transform="translate(1120, 80)">
+                            <circle cx="0" cy="0" r="30" fill="rgba(17,24,32,0.9)" stroke="var(--border)" />
+                            <polygon points="0,-22 6,8 0,4 -6,8" fill="#ff4757" />
+                            <polygon points="0,22 6,-8 0,-4 -6,-8" fill="var(--text-muted)" />
+                            <text x="0" y="-24" text-anchor="middle" fill="var(--primary)" font-size="9"
+                                font-weight="bold">N</text>
+                        </g>
+
+                        <!-- 图例 -->
+                        <g transform="translate(50, 500)">
+                            <rect x="0" y="0" width="150" height="100" fill="rgba(17,24,32,0.9)" stroke="var(--border)"
+                                rx="4" />
+                            <text x="75" y="20" text-anchor="middle" fill="var(--text-secondary)"
+                                font-size="11">状态图例</text>
+                            <polygon points="20,45 30,40 20,35 10,40" fill="#ff4757" />
+                            <text x="45" y="43" fill="var(--text-primary)" font-size="10">红方单位</text>
+                            <rect x="10" y="55" width="20" height="15" fill="#3742fa" />
+                            <text x="45" y="66" fill="var(--text-primary)" font-size="10">蓝方单位</text>
+                            <circle cx="20" cy="85" r="6" fill="#ff9500" />
+                            <text x="45" y="88" fill="var(--text-primary)" font-size="10">交战区域</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 状态栏 -->
+                <div class="map-status-bar">
+                    <div class="status-item">
+                        <span class="tag red" style="margin: 0;">红方</span>
+                        <span>128/128 存活</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="tag blue"
+                            style="margin: 0; background: rgba(55,66,250,0.15); color: #3742fa;">蓝方</span>
+                        <span>126/128 存活</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>116.4521° E, 39.8756° N</span>
+                    </div>
+                    <div class="status-item" style="margin-left: auto;">
+                        <i class="fas fa-clock"></i>
+                        <span>帧率: 60 FPS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 - 过程监控 -->
+        <div class="panel-right"
+            style="height: calc(100vh - 142px); position: fixed; top: 142px; right: 0; width: 320px;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-desktop"></i>
+                    过程监控
+                </div>
+            </div>
+            <div class="panel-content">
+                <!-- 任务状态监控 -->
+                <div class="monitor-panel">
+                    <div class="monitor-header">
+                        <span class="monitor-title">任务状态</span>
+                        <div class="monitor-status">
+                            <span class="monitor-dot"></span>
+                            <span style="font-size: 11px; color: var(--success);">正常</span>
+                        </div>
+                    </div>
+                    <div class="monitor-content">
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">当前阶段</span>
+                            <span class="monitor-stat-value" style="color: var(--warning);">突击准备</span>
+                        </div>
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">已执行时间</span>
+                            <span class="monitor-stat-value">15:32</span>
+                        </div>
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">预计剩余</span>
+                            <span class="monitor-stat-value">24:28</span>
+                        </div>
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">完成进度</span>
+                            <span class="monitor-stat-value">38.5%</span>
+                        </div>
+                        <div class="progress-bar" style="margin-top: 8px;">
+                            <div class="fill" style="width: 38.5%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 实体状态统计 -->
+                <div class="monitor-panel">
+                    <div class="monitor-header">
+                        <span class="monitor-title">实体状态</span>
+                    </div>
+                    <div class="monitor-content">
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">机动中</span>
+                            <span class="monitor-stat-value" style="color: var(--success);">86</span>
+                        </div>
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">执行任务</span>
+                            <span class="monitor-stat-value" style="color: var(--warning);">42</span>
+                        </div>
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">待命</span>
+                            <span class="monitor-stat-value" style="color: var(--primary);">124</span>
+                        </div>
+                        <div class="monitor-stat">
+                            <span class="monitor-stat-label">战损</span>
+                            <span class="monitor-stat-value" style="color: var(--danger);">4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 断点调试 -->
+                <div class="monitor-panel">
+                    <div class="monitor-header">
+                        <span class="monitor-title">断点调试</span>
+                        <button class="btn btn-sm btn-outline">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="monitor-content" style="padding: 0;">
+                        <table class="data-table" style="font-size: 12px;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 8px;">状态</th>
+                                    <th style="padding: 8px;">条件</th>
+                                    <th style="padding: 8px;">触发时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 8px;"><span class="monitor-dot"></span></td>
+                                    <td style="padding: 8px;">红方到达A点</td>
+                                    <td style="padding: 8px;">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px;"><span class="monitor-dot"
+                                            style="background: var(--text-muted); animation: none;"></span></td>
+                                    <td style="padding: 8px;">蓝方损失>10%</td>
+                                    <td style="padding: 8px;">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px;"><span class="monitor-dot warning"></span></td>
+                                    <td style="padding: 8px;">时间>20min</td>
+                                    <td style="padding: 8px;">待触发</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 事件日志 -->
+                <div class="monitor-panel">
+                    <div class="monitor-header">
+                        <span class="monitor-title">事件日志</span>
+                        <button class="btn btn-sm btn-outline">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                    <div class="monitor-content" style="max-height: 200px; overflow-y: auto; padding: 0;">
+                        <div style="padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--primary);">15:32:18</span>
+                                <span class="status-badge success"
+                                    style="font-size: 10px; padding: 2px 6px;">INFO</span>
+                            </div>
+                            <div style="color: var(--text-secondary);">红方履带-001 开始移动至目标点A</div>
+                        </div>
+                        <div style="padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--primary);">15:31:45</span>
+                                <span class="status-badge warning"
+                                    style="font-size: 10px; padding: 2px 6px;">WARN</span>
+                            </div>
+                            <div style="color: var(--text-secondary);">蓝方步兵-03 进入侦察范围</div>
+                        </div>
+                        <div style="padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--primary);">15:30:22</span>
+                                <span class="status-badge danger"
+                                    style="font-size: 10px; padding: 2px 6px;">COMBAT</span>
+                            </div>
+                            <div style="color: var(--text-secondary);">红方炮兵对蓝方阵地实施打击</div>
+                        </div>
+                        <div style="padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--primary);">15:28:56</span>
+                                <span class="status-badge info" style="font-size: 10px; padding: 2px 6px;">RECON</span>
+                            </div>
+                            <div style="color: var(--text-secondary);">无人机-01 完成区域侦察</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新系统时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+            document.getElementById('systemTime').textContent = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 仿真时间模拟
+        let simSeconds = 932; // 15:32
+        let isPlaying = true;
+        let speed = 1;
+
+        function updateSimTime() {
+            if (isPlaying) {
+                simSeconds += speed;
+                const mins = Math.floor(simSeconds / 60);
+                const secs = simSeconds % 60;
+                document.getElementById('simTime').textContent =
+                    `00:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+        }
+        setInterval(updateSimTime, 1000);
+
+        // 播放/暂停控制
+        document.getElementById('playBtn').addEventListener('click', function () {
+            isPlaying = !isPlaying;
+            const icon = document.getElementById('playIcon');
+            const status = document.getElementById('simStatus');
+            if (isPlaying) {
+                icon.className = 'fas fa-pause';
+                status.className = 'status-badge success';
+                status.innerHTML = '<span class="monitor-dot" style="width: 6px; height: 6px;"></span> 运行中';
+            } else {
+                icon.className = 'fas fa-play';
+                status.className = 'status-badge warning';
+                status.innerHTML = '<span class="monitor-dot warning" style="width: 6px; height: 6px;"></span> 已暂停';
+            }
+        });
+
+        // 停止按钮
+        document.getElementById('stopBtn').addEventListener('click', function () {
+            isPlaying = false;
+            simSeconds = 0;
+            document.getElementById('simTime').textContent = '00:00:00';
+            document.getElementById('playIcon').className = 'fas fa-play';
+            const status = document.getElementById('simStatus');
+            status.className = 'status-badge danger';
+            status.innerHTML = '<span class="monitor-dot error" style="width: 6px; height: 6px; animation: none;"></span> 已停止';
+        });
+
+        // 速度控制
+        document.getElementById('simSpeed').addEventListener('change', function () {
+            speed = parseFloat(this.value);
+        });
+
+        // 树节点交互
+        document.querySelectorAll('.tree-node-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                this.classList.toggle('expanded');
+                const children = this.closest('.tree-node').querySelector('.tree-node-children');
+                if (children) {
+                    children.style.display = this.classList.contains('expanded') ? 'block' : 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('.tree-node-header').forEach(header => {
+            header.addEventListener('click', function () {
+                document.querySelectorAll('.tree-node-header').forEach(h => h.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+
+</html>

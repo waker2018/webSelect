@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920">
+    <title>测试评估 - TS综合集成测试系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span>TS综合集成测试系统</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">态势信息激励</a>
+            <a href="../综合测试数据管理模块原型/index.html" class="nav-item">数据管理分析</a>
+            <a href="evaluation.html" class="nav-item active">测试评估</a>
+            <a href="#" class="nav-item">系统配置</a>
+        </div>
+        <div class="nav-right">
+            <div class="system-time" id="systemTime">2024-12-19 09:00:00</div>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>管理员</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="panel-layout">
+        <!-- 左侧面板 - 指标体系树 -->
+        <div class="panel-left" style="width: 320px;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-sitemap"></i>
+                    指标体系
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="showAddIndicatorModal()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="panel-content">
+                <!-- 搜索框 -->
+                <div class="search-box" style="margin-bottom: 16px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索指标...">
+                </div>
+
+                <!-- 指标树 (≥3层级、≥10项指标) - TS综合处理测试评估体系 -->
+                <div class="indicator-tree">
+                    <!-- 一级指标 -->
+                    <div class="indicator-node">
+                        <div class="indicator-node-header selected">
+                            <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                            <div class="indicator-icon level-1"><i class="fas fa-bullseye"></i></div>
+                            <span class="indicator-name">TS综合处理效能</span>
+                            <span class="indicator-weight">100%</span>
+                        </div>
+                        <div class="indicator-children">
+                            <!-- 二级指标: TS整编 -->
+                            <div class="indicator-node">
+                                <div class="indicator-node-header">
+                                    <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                                    <div class="indicator-icon level-2"><i class="fas fa-layer-group"></i></div>
+                                    <span class="indicator-name">TS整编评估</span>
+                                    <span class="indicator-weight">20%</span>
+                                </div>
+                                <div class="indicator-children">
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-clock"></i></div>
+                                            <span class="indicator-name">整编时效性</span>
+                                            <span class="indicator-weight">35%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-check-double"></i>
+                                            </div>
+                                            <span class="indicator-name">整编完整率</span>
+                                            <span class="indicator-weight">35%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-bullseye"></i></div>
+                                            <span class="indicator-name">整编准确率</span>
+                                            <span class="indicator-weight">30%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 二级指标: 综合/专题TS生成与显示 -->
+                            <div class="indicator-node">
+                                <div class="indicator-node-header">
+                                    <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                                    <div class="indicator-icon level-2"><i class="fas fa-display"></i></div>
+                                    <span class="indicator-name">TS生成与显示</span>
+                                    <span class="indicator-weight">25%</span>
+                                </div>
+                                <div class="indicator-children">
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-map"></i></div>
+                                            <span class="indicator-name">综合TS生成率</span>
+                                            <span class="indicator-weight">30%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-chart-area"></i></div>
+                                            <span class="indicator-name">专题TS生成率</span>
+                                            <span class="indicator-weight">30%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-desktop"></i></div>
+                                            <span class="indicator-name">显示刷新率</span>
+                                            <span class="indicator-weight">20%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-expand"></i></div>
+                                            <span class="indicator-name">显示准确度</span>
+                                            <span class="indicator-weight">20%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 二级指标: TS认知 -->
+                            <div class="indicator-node">
+                                <div class="indicator-node-header">
+                                    <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                                    <div class="indicator-icon level-2"><i class="fas fa-brain"></i></div>
+                                    <span class="indicator-name">TS认知评估</span>
+                                    <span class="indicator-weight">20%</span>
+                                </div>
+                                <div class="indicator-children">
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-lightbulb"></i></div>
+                                            <span class="indicator-name">目标识别率</span>
+                                            <span class="indicator-weight">40%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-route"></i></div>
+                                            <span class="indicator-name">意图判断准确率</span>
+                                            <span class="indicator-weight">35%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i
+                                                    class="fas fa-triangle-exclamation"></i></div>
+                                            <span class="indicator-name">威胁评估准确率</span>
+                                            <span class="indicator-weight">25%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 二级指标: TS分发共享 -->
+                            <div class="indicator-node">
+                                <div class="indicator-node-header">
+                                    <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                                    <div class="indicator-icon level-2"><i class="fas fa-share-nodes"></i></div>
+                                    <span class="indicator-name">TS分发共享</span>
+                                    <span class="indicator-weight">20%</span>
+                                </div>
+                                <div class="indicator-children">
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-paper-plane"></i></div>
+                                            <span class="indicator-name">分发成功率</span>
+                                            <span class="indicator-weight">35%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-stopwatch"></i></div>
+                                            <span class="indicator-name">分发时延</span>
+                                            <span class="indicator-weight">35%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-users"></i></div>
+                                            <span class="indicator-name">共享覆盖率</span>
+                                            <span class="indicator-weight">30%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 二级指标: 处理结果一致性 -->
+                            <div class="indicator-node">
+                                <div class="indicator-node-header">
+                                    <span class="tree-node-toggle expanded"><i class="fas fa-caret-right"></i></span>
+                                    <div class="indicator-icon level-2"><i class="fas fa-equals"></i></div>
+                                    <span class="indicator-name">处理结果一致性</span>
+                                    <span class="indicator-weight">15%</span>
+                                </div>
+                                <div class="indicator-children">
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-database"></i></div>
+                                            <span class="indicator-name">数据一致性</span>
+                                            <span class="indicator-weight">50%</span>
+                                        </div>
+                                    </div>
+                                    <div class="indicator-node">
+                                        <div class="indicator-node-header">
+                                            <span class="tree-node-toggle"></span>
+                                            <div class="indicator-icon level-3"><i class="fas fa-code-compare"></i>
+                                            </div>
+                                            <span class="indicator-name">状态一致性</span>
+                                            <span class="indicator-weight">50%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央区域 - 时间轴与指标配置 -->
+        <div class="panel-center">
+            <!-- 时间轴编辑器 -->
+            <div style="padding: 16px; border-bottom: 1px solid var(--border); background: var(--bg-panel);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div class="panel-title">
+                        <i class="fas fa-timeline"></i>
+                        测试活动时间轴
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-sm btn-outline">
+                            <i class="fas fa-plus"></i> 添加活动
+                        </button>
+                        <button class="btn btn-sm btn-outline">
+                            <i class="fas fa-expand"></i> 全屏
+                        </button>
+                    </div>
+                </div>
+
+                <div class="timeline-editor" style="overflow-x: auto;">
+                    <div style="min-width: 1000px;">
+                        <!-- 时间刻度 -->
+                        <div class="timeline-ruler">
+                            <div class="timeline-tick" style="left: 120px;"></div>
+                            <div class="timeline-tick-label" style="left: 120px;">00:00</div>
+                            <div class="timeline-tick major" style="left: 220px;"></div>
+                            <div class="timeline-tick-label" style="left: 220px;">05:00</div>
+                            <div class="timeline-tick" style="left: 320px;"></div>
+                            <div class="timeline-tick-label" style="left: 320px;">10:00</div>
+                            <div class="timeline-tick major" style="left: 420px;"></div>
+                            <div class="timeline-tick-label" style="left: 420px;">15:00</div>
+                            <div class="timeline-tick" style="left: 520px;"></div>
+                            <div class="timeline-tick-label" style="left: 520px;">20:00</div>
+                            <div class="timeline-tick major" style="left: 620px;"></div>
+                            <div class="timeline-tick-label" style="left: 620px;">25:00</div>
+                            <div class="timeline-tick" style="left: 720px;"></div>
+                            <div class="timeline-tick-label" style="left: 720px;">30:00</div>
+                            <div class="timeline-tick major" style="left: 820px;"></div>
+                            <div class="timeline-tick-label" style="left: 820px;">35:00</div>
+                            <div class="timeline-tick" style="left: 920px;"></div>
+                            <div class="timeline-tick-label" style="left: 920px;">40:00</div>
+                        </div>
+
+                        <!-- 轨道 -->
+                        <div class="timeline-tracks">
+                            <div class="timeline-track">
+                                <div class="timeline-track-label">初始化阶段</div>
+                                <div class="timeline-track-content">
+                                    <div class="timeline-event"
+                                        style="left: 120px; width: 80px; background: linear-gradient(90deg, #30d158, #28a745);">
+                                        环境加载</div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="timeline-track-label">侦察探测</div>
+                                <div class="timeline-track-content">
+                                    <div class="timeline-event"
+                                        style="left: 200px; width: 150px; background: linear-gradient(90deg, #ff9500, #e67e22);">
+                                        侦察任务执行</div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="timeline-track-label">态势融合</div>
+                                <div class="timeline-track-content">
+                                    <div class="timeline-event" style="left: 280px; width: 180px;">态势生成与共享</div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="timeline-track-label">作战决策</div>
+                                <div class="timeline-track-content">
+                                    <div class="timeline-event"
+                                        style="left: 400px; width: 120px; background: linear-gradient(90deg, #ff4757, #cc2a22);">
+                                        决策制定</div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="timeline-track-label">行动执行</div>
+                                <div class="timeline-track-content">
+                                    <div class="timeline-event"
+                                        style="left: 520px; width: 200px; background: linear-gradient(90deg, #3742fa, #2d36c7);">
+                                        行动任务执行</div>
+                                </div>
+                            </div>
+                            <div class="timeline-track">
+                                <div class="timeline-track-label">效果评估</div>
+                                <div class="timeline-track-content">
+                                    <div class="timeline-event"
+                                        style="left: 720px; width: 120px; background: linear-gradient(90deg, #30d158, #28a745);">
+                                        结果分析</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 指标计算配置 -->
+            <div style="padding: 16px; flex: 1; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div class="panel-title">
+                        <i class="fas fa-calculator"></i>
+                        指标计算模型
+                    </div>
+                    <span class="status-badge info" id="selectedIndicatorBadge">请选择指标</span>
+                </div>
+
+                <!-- 动态指标计算模型显示区域 -->
+                <div id="indicatorModelContainer">
+                    <div class="card" id="indicatorModelCard">
+                        <div class="card-header">
+                            <span class="card-title" id="indicatorModelTitle">
+                                <i class="fas fa-layer-group" id="indicatorModelIcon"></i>
+                                <span id="indicatorModelName">请从左侧选择指标</span>
+                            </span>
+                            <span class="status-badge warning" id="indicatorModelStatus">未选择</span>
+                        </div>
+                        <div class="card-body" id="indicatorModelBody">
+                            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                <i class="fas fa-hand-pointer"
+                                    style="font-size: 48px; margin-bottom: 16px; color: var(--primary); opacity: 0.5;"></i>
+                                <p style="font-size: 14px; margin-bottom: 8px;">点击左侧指标树中的任意指标</p>
+                                <p style="font-size: 12px; opacity: 0.7;">将在此处显示对应的计算模型配置</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配置表单区域（点击指标后显示） -->
+                    <div class="card" id="indicatorConfigCard" style="display: none; margin-top: 16px;">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-cogs"></i> 模型配置</span>
+                            <button class="btn btn-sm btn-primary" onclick="showFormulaEditor()">
+                                <i class="fas fa-edit"></i> 编辑公式
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="property-group" style="margin-bottom: 0;">
+                                <div class="property-item">
+                                    <span class="property-label">计算公式</span>
+                                    <code id="indicatorFormula"
+                                        style="background: var(--bg-dark); padding: 4px 8px; border-radius: 4px; font-size: 12px; color: var(--primary);">
+                                        R = (N_success / N_total) × 100%
+                                    </code>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">运算类型</span>
+                                    <select class="property-input" style="width: 120px;" id="indicatorCalcType">
+                                        <option>统计比较</option>
+                                        <option selected>四则运算</option>
+                                        <option>幂函数</option>
+                                        <option>指数函数</option>
+                                    </select>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">数据来源</span>
+                                    <select class="property-input" style="width: 140px;" id="indicatorDataSource">
+                                        <option selected>仿真实时数据</option>
+                                        <option>实测数据</option>
+                                        <option>专家经验数据</option>
+                                        <option>融合数据</option>
+                                    </select>
+                                </div>
+                                <div class="property-item">
+                                    <span class="property-label">阈值设置</span>
+                                    <span style="display: flex; gap: 8px; align-items: center;">
+                                        <span style="color: var(--success);">优秀 ≥<input type="number" value="90"
+                                                style="width: 40px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-primary); padding: 2px 4px; border-radius: 3px;">%</span>
+                                        <span style="color: var(--warning);">良好 ≥<input type="number" value="75"
+                                                style="width: 40px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-primary); padding: 2px 4px; border-radius: 3px;">%</span>
+                                        <span style="color: var(--danger);">合格 ≥<input type="number" value="60"
+                                                style="width: 40px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-primary); padding: 2px 4px; border-radius: 3px;">%</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 - 评估算法 -->
+        <div class="panel-right" style="width: 340px;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-brain"></i>
+                    评估算法
+                </div>
+            </div>
+            <div class="panel-content">
+                <!-- 算法选择 -->
+                <div style="margin-bottom: 20px;">
+                    <div class="property-group-title" style="margin-bottom: 12px;">算法模型选择</div>
+
+                    <div class="algorithm-card selected">
+                        <div class="algo-name">
+                            <input type="radio" name="algorithm" checked style="accent-color: var(--primary);">
+                            <i class="fas fa-balance-scale"></i>
+                            主观赋权法
+                        </div>
+                        <div class="algo-desc">基于专家经验确定各指标权重，适用于定性评估</div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algo-name">
+                            <input type="radio" name="algorithm" style="accent-color: var(--primary);">
+                            <i class="fas fa-layer-group"></i>
+                            层次分析法(AHP)
+                        </div>
+                        <div class="algo-desc">通过两两比较构建判断矩阵，计算各层权重</div>
+                    </div>
+
+                    <div class="algorithm-card">
+                        <div class="algo-name">
+                            <input type="radio" name="algorithm" style="accent-color: var(--primary);">
+                            <i class="fas fa-chart-scatter"></i>
+                            因子分析法
+                        </div>
+                        <div class="algo-desc">从多个变量中提取公共因子，降维客观赋权</div>
+                    </div>
+                </div>
+
+                <!-- 权重配置 -->
+                <div style="margin-bottom: 20px;">
+                    <div class="property-group-title" style="margin-bottom: 12px;">权重分配</div>
+                    <div class="property-group" style="margin-bottom: 0;">
+                        <div class="property-item">
+                            <span class="property-label">作战能力</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="0" max="100" value="40" style="width: 80px;">
+                                <span class="property-value" style="width: 40px;">40%</span>
+                            </div>
+                        </div>
+                        <div class="property-item">
+                            <span class="property-label">系统性能</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="0" max="100" value="35" style="width: 80px;">
+                                <span class="property-value" style="width: 40px;">35%</span>
+                            </div>
+                        </div>
+                        <div class="property-item">
+                            <span class="property-label">协同效能</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="range" min="0" max="100" value="25" style="width: 80px;">
+                                <span class="property-value" style="width: 40px;">25%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 评估结果预览 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-chart-pie"></i> 评估结果预览</span>
+                    </div>
+                    <div class="card-body">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <div style="font-size: 48px; font-weight: 700; color: var(--success);">87.5</div>
+                            <div style="color: var(--text-secondary); font-size: 14px;">综合评分</div>
+                        </div>
+                        <div class="property-group" style="margin-bottom: 0;">
+                            <div class="property-item">
+                                <span class="property-label">作战能力</span>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                                    <div class="progress-bar" style="flex: 1; height: 6px;">
+                                        <div class="fill" style="width: 85%; background: var(--success);"></div>
+                                    </div>
+                                    <span class="property-value" style="width: 40px;">85.0</span>
+                                </div>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">系统性能</span>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                                    <div class="progress-bar" style="flex: 1; height: 6px;">
+                                        <div class="fill" style="width: 92%; background: var(--success);"></div>
+                                    </div>
+                                    <span class="property-value" style="width: 40px;">92.3</span>
+                                </div>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">协同效能</span>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                                    <div class="progress-bar" style="flex: 1; height: 6px;">
+                                        <div class="fill" style="width: 82%; background: var(--warning);"></div>
+                                    </div>
+                                    <span class="property-value" style="width: 40px;">82.1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-play"></i> 执行评估
+                    </button>
+                    <button class="btn btn-outline" style="flex: 1;">
+                        <i class="fas fa-file-export"></i> 生成报告
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部指标管理工具栏 -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; height: 50px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 100;">
+        <div class="panel-title">
+            <i class="fas fa-tools"></i>
+            指标管理
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-sm btn-outline" onclick="showAddIndicatorModal()">
+                <i class="fas fa-plus"></i> 新建指标
+            </button>
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-edit"></i> 编辑
+            </button>
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-trash"></i> 删除
+            </button>
+            <button class="btn btn-sm btn-outline">
+                <i class="fas fa-search"></i> 查询
+            </button>
+        </div>
+        <div class="divider" style="width: 1px; height: 30px; background: var(--border); margin: 0 16px;"></div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="color: var(--text-secondary); font-size: 13px;">分类筛选:</span>
+            <select class="form-control" style="width: 150px; padding: 6px 10px; font-size: 12px;">
+                <option>全部指标</option>
+                <option>作战能力</option>
+                <option>系统性能</option>
+                <option>协同效能</option>
+            </select>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+            <span class="status-badge info">
+                <i class="fas fa-chart-bar"></i> 指标总数: 12
+            </span>
+            <span class="status-badge success">
+                <i class="fas fa-check-circle"></i> 已配置: 8
+            </span>
+            <span class="status-badge warning">
+                <i class="fas fa-clock"></i> 待配置: 4
+            </span>
+        </div>
+    </div>
+
+    <!-- 添加指标模态框 -->
+    <div class="modal-overlay" id="addIndicatorModal">
+        <div class="modal" style="width: 500px;">
+            <div class="modal-header">
+                <h3 style="color: blue;">新建评估指标</h3>
+                <button onclick="hideAddIndicatorModal()"
+                    style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">指标名称 *</label>
+                    <input type="text" class="form-control" placeholder="请输入指标名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">上级指标</label>
+                    <select class="form-control">
+                        <option>综合效能评估</option>
+                        <option>├ 作战能力</option>
+                        <option>├ 系统性能</option>
+                        <option>└ 协同效能</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">权重 (%)</label>
+                    <input type="number" class="form-control" placeholder="0-100" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">计算类型</label>
+                    <select class="form-control">
+                        <option>四则运算</option>
+                        <option>幂函数</option>
+                        <option>指数函数</option>
+                        <option>统计比较</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <textarea class="form-control" rows="3" placeholder="指标说明..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="hideAddIndicatorModal()">取消</button>
+                <button class="btn btn-primary">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 公式编辑器模态框 -->
+    <div class="modal-overlay" id="formulaEditorModal">
+        <div class="modal" style="width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3 style="color: var(--text-primary);"><i class="fas fa-function"
+                        style="color: var(--primary); margin-right: 8px;"></i>自定义计算公式</h3>
+                <button onclick="hideFormulaEditor()"
+                    style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 20px; overflow-y: auto; flex: 1;">
+                <!-- 指标信息 -->
+                <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <label class="form-label">指标名称</label>
+                        <input type="text" class="form-control" id="formulaIndicatorName" value="侦察发现概率">
+                    </div>
+                    <div style="width: 180px;">
+                        <label class="form-label">输出变量</label>
+                        <input type="text" class="form-control" id="formulaOutputVar" value="P"
+                            style="font-family: 'Consolas', monospace;">
+                    </div>
+                </div>
+
+                <!-- 公式编辑区域 -->
+                <div style="margin-bottom: 20px;">
+                    <label class="form-label">计算公式</label>
+                    <div
+                        style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 16px;">
+                        <textarea id="formulaInput" class="form-control"
+                            style="font-family: 'Consolas', monospace; font-size: 16px; height: 60px; resize: none; background: transparent; border: none; color: var(--primary);"
+                            placeholder="输入或使用下方按钮构建公式...">(N_detected / N_total) * 100</textarea>
+                    </div>
+                </div>
+
+                <!-- 算子面板 -->
+                <div style="margin-bottom: 20px;">
+                    <label class="form-label">运算符 & 函数</label>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                        <!-- 四则运算 -->
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 12px;">
+                            <div
+                                style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                                四则运算</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <button class="formula-btn" onclick="insertOperator('+')">+</button>
+                                <button class="formula-btn" onclick="insertOperator('-')">−</button>
+                                <button class="formula-btn" onclick="insertOperator('*')">×</button>
+                                <button class="formula-btn" onclick="insertOperator('/')">÷</button>
+                                <button class="formula-btn" onclick="insertOperator('(')">(</button>
+                                <button class="formula-btn" onclick="insertOperator(')')">)</button>
+                            </div>
+                        </div>
+                        <!-- 幂函数 -->
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 12px;">
+                            <div
+                                style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                                幂函数</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <button class="formula-btn" onclick="insertOperator('pow(,)')">xⁿ</button>
+                                <button class="formula-btn" onclick="insertOperator('sqrt()')">√</button>
+                                <button class="formula-btn" onclick="insertOperator('^2')">x²</button>
+                                <button class="formula-btn" onclick="insertOperator('^3')">x³</button>
+                            </div>
+                        </div>
+                        <!-- 指数函数 -->
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 12px;">
+                            <div
+                                style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                                指数函数</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <button class="formula-btn" onclick="insertOperator('exp()')">eˣ</button>
+                                <button class="formula-btn" onclick="insertOperator('ln()')">ln</button>
+                                <button class="formula-btn" onclick="insertOperator('log()')">log</button>
+                                <button class="formula-btn" onclick="insertOperator('log10()')">lg</button>
+                            </div>
+                        </div>
+                        <!-- 统计比较 -->
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 12px;">
+                            <div
+                                style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                                统计比较</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <button class="formula-btn" onclick="insertOperator('max(,)')">max</button>
+                                <button class="formula-btn" onclick="insertOperator('min(,)')">min</button>
+                                <button class="formula-btn" onclick="insertOperator('avg()')">avg</button>
+                                <button class="formula-btn" onclick="insertOperator('sum()')">Σ</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 比较运算符 -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="formula-btn-outline" onclick="insertOperator(' > ')">></button>
+                        <button class="formula-btn-outline" onclick="insertOperator(' < ')">
+                            << /button>
+                                <button class="formula-btn-outline" onclick="insertOperator(' >= ')">≥</button>
+                                <button class="formula-btn-outline" onclick="insertOperator(' <= ')">≤</button>
+                                <button class="formula-btn-outline" onclick="insertOperator(' == ')">=</button>
+                                <button class="formula-btn-outline" onclick="insertOperator(' != ')">≠</button>
+                                <button class="formula-btn-outline" onclick="insertOperator(' && ')">AND</button>
+                                <button class="formula-btn-outline" onclick="insertOperator(' || ')">OR</button>
+                                <button class="formula-btn-outline" onclick="insertOperator('abs()')">|x|</button>
+                                <button class="formula-btn-outline" onclick="insertOperator('round()')">四舍五入</button>
+                                <button class="formula-btn-outline" onclick="insertOperator('floor()')">向下取整</button>
+                                <button class="formula-btn-outline" onclick="insertOperator('ceil()')">向上取整</button>
+                    </div>
+                </div>
+
+                <!-- 变量选择 -->
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">计算因子（可用变量）</label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="var-btn" onclick="insertVariable('N_success')">
+                            <span style="color: var(--primary);">N_success</span>
+                            <span style="color: var(--text-muted); font-size: 10px;">成功次数</span>
+                        </button>
+                        <button class="var-btn" onclick="insertVariable('N_total')">
+                            <span style="color: var(--primary);">N_total</span>
+                            <span style="color: var(--text-muted); font-size: 10px;">总次数</span>
+                        </button>
+                        <button class="var-btn" onclick="insertVariable('T_actual')">
+                            <span style="color: var(--primary);">T_actual</span>
+                            <span style="color: var(--text-muted); font-size: 10px;">实际时间</span>
+                        </button>
+                        <button class="var-btn" onclick="insertVariable('T_standard')">
+                            <span style="color: var(--primary);">T_standard</span>
+                            <span style="color: var(--text-muted); font-size: 10px;">标准时间</span>
+                        </button>
+                        <button class="var-btn" onclick="insertVariable('Acc_value')">
+                            <span style="color: var(--primary);">Acc_value</span>
+                            <span style="color: var(--text-muted); font-size: 10px;">准确率</span>
+                        </button>
+                        <button class="var-btn" onclick="insertVariable('Threshold')">
+                            <span style="color: var(--primary);">Threshold</span>
+                            <span style="color: var(--text-muted); font-size: 10px;">阈值</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 数据源关联 - 将计算因子与仿真/实测数据绑定 -->
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label"><i class="fas fa-link"
+                            style="color: var(--primary); margin-right: 6px;"></i>计算因子数据关联</label>
+                    <div
+                        style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 12px;">
+                        <table style="width: 100%; font-size: 12px;">
+                            <thead>
+                                <tr style="color: var(--text-muted); text-align: left;">
+                                    <th style="padding: 6px;">计算因子</th>
+                                    <th style="padding: 6px;">数据类型</th>
+                                    <th style="padding: 6px;">数据来源</th>
+                                    <th style="padding: 6px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-top: 1px solid var(--border);">
+                                    <td style="padding: 8px;"><code style="color: var(--primary);">N_success</code></td>
+                                    <td style="padding: 8px;">
+                                        <select class="property-input" style="width: 100px; font-size: 11px;">
+                                            <option selected>仿真数据</option>
+                                            <option>实测数据</option>
+                                            <option>专家经验</option>
+                                        </select>
+                                    </td>
+                                    <td style="padding: 8px;">
+                                        <select class="property-input" style="width: 140px; font-size: 11px;">
+                                            <option selected>整编成功计数器</option>
+                                            <option>目标识别计数器</option>
+                                            <option>分发确认计数器</option>
+                                        </select>
+                                    </td>
+                                    <td style="padding: 8px;">
+                                        <button class="btn btn-sm btn-outline" style="padding: 2px 8px;"><i
+                                                class="fas fa-cog"></i></button>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid var(--border);">
+                                    <td style="padding: 8px;"><code style="color: var(--primary);">N_total</code></td>
+                                    <td style="padding: 8px;">
+                                        <select class="property-input" style="width: 100px; font-size: 11px;">
+                                            <option selected>仿真数据</option>
+                                            <option>实测数据</option>
+                                            <option>专家经验</option>
+                                        </select>
+                                    </td>
+                                    <td style="padding: 8px;">
+                                        <select class="property-input" style="width: 140px; font-size: 11px;">
+                                            <option selected>整编任务总数</option>
+                                            <option>目标总数</option>
+                                            <option>分发任务总数</option>
+                                        </select>
+                                    </td>
+                                    <td style="padding: 8px;">
+                                        <button class="btn btn-sm btn-outline" style="padding: 2px 8px;"><i
+                                                class="fas fa-cog"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 8px; text-align: right;">
+                            <button class="btn btn-sm btn-outline"><i class="fas fa-plus"></i> 添加因子关联</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 公式预览与校验 -->
+                <div
+                    style="background: linear-gradient(135deg, rgba(0,212,255,0.1) 0%, rgba(0,153,204,0.05) 100%); border: 1px solid var(--primary); border-radius: 6px; padding: 16px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 12px; color: var(--text-secondary);">公式预览与校验</span>
+                        <span id="formulaValidation" class="status-badge success">
+                            <i class="fas fa-check-circle"></i> 语法正确
+                        </span>
+                    </div>
+                    <div id="formulaPreview"
+                        style="font-family: 'Consolas', monospace; font-size: 18px; color: var(--text-primary);">
+                        P = (N_success ÷ N_total) × 100
+                    </div>
+                    <div style="margin-top: 12px; display: flex; gap: 16px; font-size: 11px; color: var(--text-muted);">
+                        <span><i class="fas fa-database" style="color: var(--success);"></i> 数据源: 已绑定 2 个因子</span>
+                        <span><i class="fas fa-calculator" style="color: var(--primary);"></i> 运算符: 有效</span>
+                        <span><i class="fas fa-check" style="color: var(--success);"></i> 可执行计算</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="clearFormula()"><i class="fas fa-eraser"></i> 清空</button>
+                <button class="btn btn-outline" onclick="hideFormulaEditor()">取消</button>
+                <button class="btn btn-primary" onclick="saveFormula()"><i class="fas fa-save"></i> 保存公式</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .formula-btn {
+            width: 40px;
+            height: 36px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .formula-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .formula-btn-outline {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .formula-btn-outline:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .var-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 8px 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .var-btn:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .indicator-card-clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .indicator-card-clickable:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+    </style>
+    <script>
+        // 更新系统时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+            document.getElementById('systemTime').textContent = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 模态框控制
+        function showAddIndicatorModal() {
+            document.getElementById('addIndicatorModal').classList.add('show');
+        }
+        function hideAddIndicatorModal() {
+            document.getElementById('addIndicatorModal').classList.remove('show');
+        }
+
+        // 指标节点展开/折叠
+        document.querySelectorAll('.tree-node-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                this.classList.toggle('expanded');
+                const children = this.closest('.indicator-node').querySelector('.indicator-children');
+                if (children) {
+                    children.style.display = this.classList.contains('expanded') ? 'block' : 'none';
+                }
+            });
+        });
+
+        // 指标节点选择 - 更新指标计算模型显示
+        // 定义指标计算模型配置
+        const indicatorModels = {
+            'TS综合处理效能': { formula: 'E = Σ(Wi × Ii)', type: '加权求和', icon: 'fa-bullseye', level: 1 },
+            'TS整编评估': { formula: 'S_整编 = 0.35×T效 + 0.35×C率 + 0.30×A率', type: '加权求和', icon: 'fa-layer-group', level: 2 },
+            '整编时效性': { formula: 'T效 = max(0, 1 - T_实际/T_标准)', type: '四则运算', icon: 'fa-clock', level: 3 },
+            '整编完整率': { formula: 'C率 = N_完整/N_总数 × 100%', type: '统计比较', icon: 'fa-check-double', level: 3 },
+            '整编准确率': { formula: 'A率 = N_正确/N_总数 × 100%', type: '统计比较', icon: 'fa-bullseye', level: 3 },
+            'TS生成与显示': { formula: 'S_生成 = 0.30×G综 + 0.30×G专 + 0.20×R刷 + 0.20×A显', type: '加权求和', icon: 'fa-display', level: 2 },
+            '综合TS生成率': { formula: 'G综 = N_生成/N_请求 × 100%', type: '统计比较', icon: 'fa-map', level: 3 },
+            '专题TS生成率': { formula: 'G专 = N_专题生成/N_专题请求 × 100%', type: '统计比较', icon: 'fa-chart-area', level: 3 },
+            '显示刷新率': { formula: 'R刷 = 1/T_刷新周期 (Hz)', type: '四则运算', icon: 'fa-desktop', level: 3 },
+            '显示准确度': { formula: 'A显 = 1 - |V_显示 - V_实际|/V_实际', type: '四则运算', icon: 'fa-expand', level: 3 },
+            'TS认知评估': { formula: 'S_认知 = 0.40×R识 + 0.35×A意 + 0.25×A威', type: '加权求和', icon: 'fa-brain', level: 2 },
+            '目标识别率': { formula: 'R识 = N_识别/N_目标 × 100%', type: '统计比较', icon: 'fa-lightbulb', level: 3 },
+            '意图判断准确率': { formula: 'A意 = N_正确判断/N_总判断 × 100%', type: '统计比较', icon: 'fa-route', level: 3 },
+            '威胁评估准确率': { formula: 'A威 = N_正确威胁/N_总威胁 × 100%', type: '统计比较', icon: 'fa-triangle-exclamation', level: 3 },
+            'TS分发共享': { formula: 'S_分发 = 0.35×R成 + 0.35×T延 + 0.30×C覆', type: '加权求和', icon: 'fa-share-nodes', level: 2 },
+            '分发成功率': { formula: 'R成 = N_成功/N_发送 × 100%', type: '统计比较', icon: 'fa-paper-plane', level: 3 },
+            '分发时延': { formula: 'T延 = max(0, 1 - T_实际/T_阈值)', type: '四则运算', icon: 'fa-stopwatch', level: 3 },
+            '共享覆盖率': { formula: 'C覆 = N_接收/N_应接收 × 100%', type: '统计比较', icon: 'fa-users', level: 3 },
+            '处理结果一致性': { formula: 'S_一致 = 0.50×D一 + 0.50×S一', type: '加权求和', icon: 'fa-equals', level: 2 },
+            '数据一致性': { formula: 'D一 = 1 - |D_A - D_B|/max(D_A, D_B)', type: '四则运算', icon: 'fa-database', level: 3 },
+            '状态一致性': { formula: 'S一 = N_一致状态/N_总状态 × 100%', type: '统计比较', icon: 'fa-code-compare', level: 3 }
+        };
+
+        document.querySelectorAll('.indicator-node-header').forEach(header => {
+            header.addEventListener('click', function () {
+                // 更新选中状态
+                document.querySelectorAll('.indicator-node-header').forEach(h => h.classList.remove('selected'));
+                this.classList.add('selected');
+
+                // 获取指标名称
+                const indicatorName = this.querySelector('.indicator-name').textContent.trim();
+                const indicatorWeight = this.querySelector('.indicator-weight').textContent.trim();
+                const model = indicatorModels[indicatorName];
+
+                if (model) {
+                    // 更新顶部标签
+                    document.getElementById('selectedIndicatorBadge').textContent = indicatorName;
+                    document.getElementById('selectedIndicatorBadge').className = 'status-badge success';
+
+                    // 更新指标模型卡片标题
+                    document.getElementById('indicatorModelIcon').className = 'fas ' + model.icon;
+                    document.getElementById('indicatorModelName').textContent = indicatorName;
+                    document.getElementById('indicatorModelStatus').textContent = '权重: ' + indicatorWeight;
+                    document.getElementById('indicatorModelStatus').className = 'status-badge success';
+
+                    // 更新卡片内容显示公式
+                    const levelText = model.level === 1 ? '一级指标' : model.level === 2 ? '二级指标' : '三级指标';
+                    document.getElementById('indicatorModelBody').innerHTML = `
+                        <div class="property-group" style="margin-bottom: 0;">
+                            <div class="property-item">
+                                <span class="property-label">指标层级</span>
+                                <span class="property-value">${levelText}</span>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">计算公式</span>
+                                <code style="background: var(--bg-dark); padding: 6px 12px; border-radius: 4px; font-size: 14px; color: var(--primary); display: block; margin-top: 4px;">
+                                    ${model.formula}
+                                </code>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">运算类型</span>
+                                <span class="status-badge info">${model.type}</span>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">权重</span>
+                                <span class="property-value">${indicatorWeight}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    // 显示配置卡片（仅三级指标可编辑）
+                    const configCard = document.getElementById('indicatorConfigCard');
+                    if (model.level === 3) {
+                        configCard.style.display = 'block';
+                        document.getElementById('indicatorFormula').textContent = model.formula;
+                        // 设置运算类型
+                        const calcTypeSelect = document.getElementById('indicatorCalcType');
+                        for (let i = 0; i < calcTypeSelect.options.length; i++) {
+                            if (calcTypeSelect.options[i].text === model.type) {
+                                calcTypeSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    } else {
+                        configCard.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // 算法卡片选择
+        document.querySelectorAll('.algorithm-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.algorithm-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+
+        // 权重滑块
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', function () {
+                this.parentElement.querySelector('.property-value').textContent = this.value + '%';
+            });
+        });
+
+        // ========== 公式编辑器功能 ==========
+
+        // 显示公式编辑器
+        function showFormulaEditor(indicatorName, outputVar, formula) {
+            document.getElementById('formulaEditorModal').classList.add('show');
+            if (indicatorName) document.getElementById('formulaIndicatorName').value = indicatorName;
+            if (outputVar) document.getElementById('formulaOutputVar').value = outputVar;
+            if (formula) document.getElementById('formulaInput').value = formula;
+            updateFormulaPreview();
+        }
+
+        // 隐藏公式编辑器
+        function hideFormulaEditor() {
+            document.getElementById('formulaEditorModal').classList.remove('show');
+        }
+
+        // 在光标位置插入运算符
+        function insertOperator(op) {
+            const input = document.getElementById('formulaInput');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            input.value = text.substring(0, start) + op + text.substring(end);
+            input.focus();
+            input.selectionStart = input.selectionEnd = start + op.length;
+            updateFormulaPreview();
+        }
+
+        // 插入变量
+        function insertVariable(varName) {
+            insertOperator(varName);
+        }
+
+        // 更新公式预览
+        function updateFormulaPreview() {
+            const formula = document.getElementById('formulaInput').value;
+            const outputVar = document.getElementById('formulaOutputVar').value || 'Y';
+
+            // 格式化显示
+            let displayFormula = formula
+                .replace(/\*/g, ' × ')
+                .replace(/\//g, ' ÷ ')
+                .replace(/\+/g, ' + ')
+                .replace(/-/g, ' − ')
+                .replace(/  +/g, ' ');
+
+            document.getElementById('formulaPreview').textContent = outputVar + ' = ' + displayFormula;
+
+            // 简单语法验证
+            validateFormula(formula);
+        }
+
+        // 验证公式语法
+        function validateFormula(formula) {
+            const validationEl = document.getElementById('formulaValidation');
+
+            // 检查括号匹配
+            let parenCount = 0;
+            for (let char of formula) {
+                if (char === '(') parenCount++;
+                if (char === ')') parenCount--;
+                if (parenCount < 0) break;
+            }
+
+            // 检查是否为空
+            if (!formula.trim()) {
+                validationEl.className = 'status-badge warning';
+                validationEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 请输入公式';
+                return false;
+            }
+
+            // 检查括号
+            if (parenCount !== 0) {
+                validationEl.className = 'status-badge danger';
+                validationEl.innerHTML = '<i class="fas fa-times-circle"></i> 括号不匹配';
+                return false;
+            }
+
+            // 检查连续运算符
+            if (/[\+\-\*\/]{2,}/.test(formula.replace(/\s/g, ''))) {
+                validationEl.className = 'status-badge danger';
+                validationEl.innerHTML = '<i class="fas fa-times-circle"></i> 运算符错误';
+                return false;
+            }
+
+            validationEl.className = 'status-badge success';
+            validationEl.innerHTML = '<i class="fas fa-check-circle"></i> 语法正确';
+            return true;
+        }
+
+        // 清空公式
+        function clearFormula() {
+            document.getElementById('formulaInput').value = '';
+            updateFormulaPreview();
+        }
+
+        // 保存公式
+        function saveFormula() {
+            const formula = document.getElementById('formulaInput').value;
+            if (validateFormula(formula)) {
+                // 模拟保存成功
+                alert('公式保存成功！\n\n' + document.getElementById('formulaOutputVar').value + ' = ' + formula);
+                hideFormulaEditor();
+            }
+        }
+
+        // 监听公式输入变化
+        document.getElementById('formulaInput')?.addEventListener('input', updateFormulaPreview);
+        document.getElementById('formulaOutputVar')?.addEventListener('input', updateFormulaPreview);
+
+        // 使指标卡片可点击打开公式编辑器
+        document.querySelectorAll('.card').forEach(card => {
+            const title = card.querySelector('.card-title');
+            const codeEl = card.querySelector('code');
+            if (title && codeEl) {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function () {
+                    const indicatorName = title.textContent.trim();
+                    const formula = codeEl.textContent.trim().split('=')[1]?.trim() || '';
+                    const outputVar = codeEl.textContent.trim().split('=')[0]?.trim() || 'Y';
+                    showFormulaEditor(indicatorName, outputVar, formula);
+                });
+                card.addEventListener('mouseenter', function () {
+                    this.style.borderColor = 'var(--primary)';
+                    this.style.boxShadow = '0 0 10px rgba(0, 212, 255, 0.2)';
+                });
+                card.addEventListener('mouseleave', function () {
+                    this.style.borderColor = '';
+                    this.style.boxShadow = '';
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

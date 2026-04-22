@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920">
+    <title>地图与标绘 - TS综合集成测试系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span>TS综合集成测试系统</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item active">态势信息激励</a>
+            <a href="../综合测试数据管理模块原型/index.html" class="nav-item">数据管理分析</a>
+            <a href="evaluation.html" class="nav-item">测试评估</a>
+            <a href="#" class="nav-item">系统配置</a>
+        </div>
+        <div class="nav-right">
+            <div class="system-time" id="systemTime">2024-12-19 09:00:00</div>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>管理员</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 三栏布局 -->
+    <div class="panel-layout">
+        <!-- 左侧面板 - 地图管理 -->
+        <div class="panel-left">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-layer-group"></i>
+                    地图管理
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="showAddMapModal()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="panel-content">
+                <!-- 搜索框 -->
+                <div class="search-box" style="margin-bottom: 16px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索地图...">
+                </div>
+
+                <!-- 地图文件列表 -->
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-folder"></i> 地图文件</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <ul class="layer-list">
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span class="layer-icon"><i class="fas fa-map"></i></span>
+                                <span class="layer-name">华北地区_CGCS2000</span>
+                                <div class="layer-actions">
+                                    <button title="编辑"><i class="fas fa-edit"></i></button>
+                                    <button title="删除"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </li>
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span class="layer-icon"><i class="fas fa-map"></i></span>
+                                <span class="layer-name">演习区域_WGS84</span>
+                                <div class="layer-actions">
+                                    <button title="编辑"><i class="fas fa-edit"></i></button>
+                                    <button title="删除"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </li>
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox">
+                                <span class="layer-icon"><i class="fas fa-map"></i></span>
+                                <span class="layer-name">城市作战区域</span>
+                                <div class="layer-actions">
+                                    <button title="编辑"><i class="fas fa-edit"></i></button>
+                                    <button title="删除"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 图层控制 -->
+                <div class="card"
+                    style="background: repeating-linear-gradient(45deg, #3b82f6, #3b82f6 10px, #ffffff 10px, #ffffff 20px);">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-layer-group"></i> 图层控制</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <ul class="layer-list">
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span class="layer-icon"><i class="fas fa-mountain"></i></span>
+                                <span class="layer-name">地形图层</span>
+                            </li>
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span class="layer-icon"><i class="fas fa-road"></i></span>
+                                <span class="layer-name">道路图层</span>
+                            </li>
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span class="layer-icon"><i class="fas fa-building"></i></span>
+                                <span class="layer-name">建筑图层</span>
+                            </li>
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox">
+                                <span class="layer-icon"><i class="fas fa-water"></i></span>
+                                <span class="layer-name">水系图层</span>
+                            </li>
+                            <li class="layer-item">
+                                <input type="checkbox" class="layer-checkbox" checked>
+                                <span class="layer-icon"><i class="fas fa-draw-polygon"></i></span>
+                                <span class="layer-name">标绘图层</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中央区域 - 地图画布 -->
+        <div class="panel-center">
+            <!-- 地图工具栏 -->
+            <div class="map-container">
+                <div class="map-toolbar" style="background-color: white;">
+                    <button class="tool-btn active" title="选择">
+                        <i class="fas fa-mouse-pointer"></i>
+                    </button>
+                    <button class="tool-btn" title="平移">
+                        <i class="fas fa-hand"></i>
+                    </button>
+                    <div class="divider"></div>
+                    <button class="tool-btn" title="放大">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="tool-btn" title="缩小">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="tool-btn" title="全图">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <div class="divider"></div>
+                    <button class="tool-btn" title="旋转">
+                        <i class="fas fa-rotate"></i>
+                    </button>
+                    <button class="tool-btn" title="复位">
+                        <i class="fas fa-compass"></i>
+                    </button>
+                    <div class="divider"></div>
+                    <button class="tool-btn" title="测量距离">
+                        <i class="fas fa-ruler"></i>
+                    </button>
+                    <button class="tool-btn" title="测量面积">
+                        <i class="fas fa-vector-square"></i>
+                    </button>
+                    <div class="divider"></div>
+                    <!-- 坐标系切换 -->
+                    <select
+                        style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); padding: 8px 12px; font-size: 12px;">
+                        <option>CGCS2000</option>
+                        <option>WGS84</option>
+                    </select>
+                </div>
+
+                <!-- 模拟地图画布 -->
+                <div class="map-canvas">
+                    <!-- 模拟网格和地图元素 -->
+                    <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0;">
+                        <!-- 模拟地图内容 -->
+                        <defs>
+                            <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(0,212,255,0.1)"
+                                    stroke-width="0.5" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+
+                        <!-- 模拟地图要素 -->
+                        <g transform="translate(200, 150)">
+                            <!-- 道路 -->
+                            <path d="M0,200 Q200,150 400,200 T800,180" stroke="rgba(139,156,181,0.5)" stroke-width="8"
+                                fill="none" />
+                            <path d="M100,50 Q150,200 200,350" stroke="rgba(139,156,181,0.4)" stroke-width="6"
+                                fill="none" />
+
+                            <!-- 建筑群 -->
+                            <rect x="250" y="100" width="80" height="60" fill="rgba(42,58,74,0.8)"
+                                stroke="rgba(0,212,255,0.3)" />
+                            <rect x="350" y="120" width="60" height="50" fill="rgba(42,58,74,0.8)"
+                                stroke="rgba(0,212,255,0.3)" />
+                            <rect x="280" y="180" width="100" height="70" fill="rgba(42,58,74,0.8)"
+                                stroke="rgba(0,212,255,0.3)" />
+
+                            <!-- 山脉 -->
+                            <polygon points="500,300 550,200 600,280 650,180 700,300" fill="rgba(26,35,50,0.8)"
+                                stroke="rgba(0,212,255,0.2)" />
+
+                            <!-- 水系 -->
+                            <path d="M600,50 Q650,100 620,150 Q700,200 680,280" stroke="rgba(0,153,204,0.6)"
+                                stroke-width="12" fill="none" stroke-linecap="round" />
+                        </g>
+
+                        <!-- 已标绘的军标 -->
+                        <g transform="translate(450, 280)">
+                            <!-- 红方单位 -->
+                            <polygon points="0,-20 20,0 0,20 -20,0" fill="#ff4757" stroke="#ff6b81" stroke-width="2" />
+                            <text x="0" y="5" text-anchor="middle" fill="white" font-size="12"
+                                font-weight="bold">1</text>
+                        </g>
+
+                        <g transform="translate(520, 320)">
+                            <polygon points="0,-18 18,0 0,18 -18,0" fill="#ff4757" stroke="#ff6b81" stroke-width="2" />
+                            <text x="0" y="4" text-anchor="middle" fill="white" font-size="10"
+                                font-weight="bold">2</text>
+                        </g>
+
+                        <g transform="translate(700, 250)">
+                            <!-- 蓝方单位 -->
+                            <rect x="-18" y="-18" width="36" height="36" fill="#3742fa" stroke="#5352ed"
+                                stroke-width="2" />
+                            <text x="0" y="5" text-anchor="middle" fill="white" font-size="12"
+                                font-weight="bold">A</text>
+                        </g>
+
+                        <g transform="translate(780, 300)">
+                            <rect x="-16" y="-16" width="32" height="32" fill="#3742fa" stroke="#5352ed"
+                                stroke-width="2" />
+                            <text x="0" y="4" text-anchor="middle" fill="white" font-size="10"
+                                font-weight="bold">B</text>
+                        </g>
+
+                        <!-- 标绘线 -->
+                        <path d="M450,280 L520,320" stroke="#ff4757" stroke-width="2" stroke-dasharray="5,5" />
+
+                        <!-- 作战区域 -->
+                        <polygon points="400,200 600,180 650,350 380,380" fill="rgba(255,71,87,0.1)" stroke="#ff4757"
+                            stroke-width="2" stroke-dasharray="8,4" />
+
+                        <!-- 指北针 -->
+                        <g transform="translate(1100, 100)">
+                            <circle cx="0" cy="0" r="35" fill="rgba(17,24,32,0.9)" stroke="var(--border)" />
+                            <polygon points="0,-25 8,10 0,5 -8,10" fill="#ff4757" />
+                            <polygon points="0,25 8,-10 0,-5 -8,-10" fill="var(--text-muted)" />
+                            <text x="0" y="-28" text-anchor="middle" fill="var(--primary)" font-size="10"
+                                font-weight="bold">N</text>
+                        </g>
+
+                        <!-- 比例尺 -->
+                        <g transform="translate(1000, 550)">
+                            <rect x="0" y="0" width="100" height="6" fill="var(--text-primary)" />
+                            <rect x="100" y="0" width="100" height="6" fill="var(--bg-dark)"
+                                stroke="var(--text-primary)" />
+                            <text x="0" y="20" fill="var(--text-secondary)" font-size="10">0</text>
+                            <text x="100" y="20" fill="var(--text-secondary)" font-size="10">5km</text>
+                            <text x="200" y="20" fill="var(--text-secondary)" font-size="10">10km</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- 状态栏 -->
+                <div class="map-status-bar">
+                    <div class="status-item">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>经度: 116.4074° E</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>纬度: 39.9042° N</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-magnifying-glass"></i>
+                        <span>缩放: 1:50000</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-globe"></i>
+                        <span>坐标系: CGCS2000</span>
+                    </div>
+                    <div class="status-item" style="margin-left: auto;">
+                        <i class="fas fa-draw-polygon"></i>
+                        <span>标绘对象: 4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 - 标绘工具 -->
+        <div class="panel-right">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-pen-ruler"></i>
+                    标绘工具
+                </div>
+            </div>
+            <div class="panel-content">
+                <!-- 标绘工具区 -->
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-shapes"></i> 基础图形</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="plotting-tools">
+                            <div class="plot-tool">
+                                <i class="fas fa-location-dot"></i>
+                                <span>点点</span>
+                            </div>
+                            <div class="plot-tool active">
+                                <i class="fas fa-minus"></i>
+                                <span>直线</span>
+                            </div>
+                            <div class="plot-tool">
+                                <i class="fas fa-bezier-curve"></i>
+                                <span>曲线</span>
+                            </div>
+                            <div class="plot-tool">
+                                <i class="fas fa-draw-polygon"></i>
+                                <span>多边形</span>
+                            </div>
+                            <div class="plot-tool">
+                                <i class="fas fa-circle"></i>
+                                <span>圆形</span>
+                            </div>
+                            <div class="plot-tool">
+                                <i class="fas fa-square"></i>
+                                <span>矩形</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 军标符号 -->
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-shield"></i> 军标符号</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="plotting-tools">
+                            <div class="plot-tool">
+                                <div class="military-symbol red" style="width: 24px; height: 24px; font-size: 10px;">步
+                                </div>
+                                <span>步兵</span>
+                            </div>
+                            <div class="plot-tool">
+                                <div class="military-symbol red" style="width: 24px; height: 24px; font-size: 10px;">装
+                                </div>
+                                <span>装甲</span>
+                            </div>
+                            <div class="plot-tool">
+                                <div class="military-symbol red" style="width: 24px; height: 24px; font-size: 10px;">炮
+                                </div>
+                                <span>炮兵</span>
+                            </div>
+                            <div class="plot-tool">
+                                <div class="military-symbol blue" style="width: 24px; height: 24px; font-size: 10px;">步
+                                </div>
+                                <span>敌步兵</span>
+                            </div>
+                            <div class="plot-tool">
+                                <div class="military-symbol blue" style="width: 24px; height: 24px; font-size: 10px;">装
+                                </div>
+                                <span>敌装甲</span>
+                            </div>
+                            <div class="plot-tool">
+                                <i class="fas fa-helicopter" style="color: var(--primary);"></i>
+                                <span>直升机</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 属性编辑器 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-sliders"></i> 属性编辑</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="property-group">
+                            <div class="property-group-title">选中对象</div>
+                            <div class="property-item">
+                                <span class="property-label">类型</span>
+                                <span class="property-value">作战区域</span>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">名称</span>
+                                <input type="text" class="property-input" value="攻击区域-A" style="width: 140px;">
+                            </div>
+                        </div>
+                        <div class="property-group">
+                            <div class="property-group-title">样式设置</div>
+                            <div class="property-item">
+                                <span class="property-label">边框颜色</span>
+                                <input type="color" value="#ff4757"
+                                    style="width: 60px; height: 28px; border: none; cursor: pointer;">
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">填充颜色</span>
+                                <input type="color" value="#ff475720"
+                                    style="width: 60px; height: 28px; border: none; cursor: pointer;">
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">线宽</span>
+                                <input type="number" class="property-input" value="2" style="width: 60px;">
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">线型</span>
+                                <select class="property-input" style="width: 100px;">
+                                    <option>实线</option>
+                                    <option selected>虚线</option>
+                                    <option>点线</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="property-group">
+                            <div class="property-group-title">位置信息</div>
+                            <div class="property-item">
+                                <span class="property-label">中心经度</span>
+                                <span class="property-value">116.4521°</span>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">中心纬度</span>
+                                <span class="property-value">39.8756°</span>
+                            </div>
+                            <div class="property-item">
+                                <span class="property-label">面积</span>
+                                <span class="property-value">12.5 km²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加地图模态框 -->
+    <div class="modal-overlay" id="addMapModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="color: var(--text-primary);">添加地图文件</h3>
+                <button onclick="hideAddMapModal()"
+                    style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">地图名称</label>
+                    <input type="text" class="form-control" placeholder="请输入地图名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">坐标系</label>
+                    <select class="form-control">
+                        <option>CGCS2000</option>
+                        <option>WGS84</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">地图文件</label>
+                    <div
+                        style="border: 2px dashed var(--border); border-radius: 8px; padding: 40px; text-align: center; cursor: pointer;">
+                        <i class="fas fa-cloud-upload-alt"
+                            style="font-size: 48px; color: var(--primary); margin-bottom: 16px;"></i>
+                        <p style="color: var(--text-secondary);">点击或拖拽文件到此处上传</p>
+                        <p style="color: var(--text-muted); font-size: 12px;">支持格式: .shp, .geojson, .kml, .tif</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="hideAddMapModal()">取消</button>
+                <button class="btn btn-primary">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新系统时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+            document.getElementById('systemTime').textContent = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 模态框控制
+        function showAddMapModal() {
+            document.getElementById('addMapModal').classList.add('show');
+        }
+        function hideAddMapModal() {
+            document.getElementById('addMapModal').classList.remove('show');
+        }
+
+        // 工具按钮切换
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (!this.classList.contains('active')) {
+                    document.querySelectorAll('.map-toolbar .tool-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // 标绘工具切换
+        document.querySelectorAll('.plot-tool').forEach(tool => {
+            tool.addEventListener('click', function () {
+                document.querySelectorAll('.plot-tool').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

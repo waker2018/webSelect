@@ -98,7 +98,10 @@ function openPreviewPanel(
             message => {
                 switch (message.type) {
                     case 'elementSelected':
-                        handleElementSelected(message.data, document);
+                        handleElementSelected(message.data);
+                        break;
+                    case 'aiModifyRequest':
+                        handleAiModifyRequest(message.data, message.instruction, document);
                         break;
                     case 'clearSelection':
                         // Webview 请求清除，Extension 同步清除
@@ -143,56 +146,17 @@ function openPreviewPanel(
     }, 500);
 }
 
-function handleElementSelected(elementInfo: ElementInfo, document: vscode.TextDocument) {
+function handleElementSelected(elementInfo: ElementInfo) {
     selectedElements.push(elementInfo);
-
-    const message = `
-✅ 已选中元素 (${selectedElements.length})
-
-**元素信息：**
-- 选择器：\`${elementInfo.selector}\`
-- 标签：\`<${elementInfo.tag}>\`
-- 文本：${elementInfo.text ? `"${elementInfo.text.substring(0, 50)}${elementInfo.text.length > 50 ? '...' : ''}"` : '(无)'}
-- 主要样式：
-  - 颜色：${elementInfo.styles.color || 'inherit'}
-  - 字号：${elementInfo.styles.fontSize || 'inherit'}
-  - 背景：${elementInfo.styles.backgroundColor || 'transparent'}
-
-请描述如何修改这个元素，或选择更多元素。
-    `.trim();
-
-    // 显示通知并提供选项
-    vscode.window.showInformationMessage(
-        `已选中 ${selectedElements.length} 个元素`,
-        'AI 智能修改',
-        '继续选择',
-        '清除选择'
-    ).then(selection => {
-        if (selection === 'AI 智能修改') {
-            askForUserInstructionAndModify(document);
-        } else if (selection === '清除选择') {
-            vscode.commands.executeCommand('elementSelector.clearSelection');
-        }
-    });
-
-    // 在输出通道中记录详细信息
-    const outputChannel = vscode.window.createOutputChannel('Element Selector');
-    outputChannel.appendLine(`\n=== 选中元素 ${selectedElements.length} ===`);
-    outputChannel.appendLine(JSON.stringify(elementInfo, null, 2));
-    outputChannel.show(true);
+    console.log(`[Element Selector] 选中元素 ${selectedElements.length}: ${elementInfo.selector}`);
 }
 
-async function askForUserInstructionAndModify(document: vscode.TextDocument) {
-    // 1. 获取用户修改指令
-    const instruction = await vscode.window.showInputBox({
-        placeHolder: '例如：把背景颜色改成淡蓝色，字体加大',
-        prompt: '你想如何修改这些选中的元素？',
-        ignoreFocusOut: true
-    });
+async function handleAiModifyRequest(elementInfo: ElementInfo, instruction: string, document: vscode.TextDocument) {
+    // 确保当前元素已在列表中（可能 elementSelected 已提前添加）
+    if (!selectedElements.find(e => e.id === elementInfo.id)) {
+        selectedElements.push(elementInfo);
+    }
 
-    if (!instruction) return;
-
-    // 2. 构建 AI 对话上下文
     const elementsContext = selectedElements.map((el, idx) => `
 ### 元素 ${idx + 1}
 - 标签: <${el.tag}>
@@ -202,7 +166,6 @@ async function askForUserInstructionAndModify(document: vscode.TextDocument) {
 - ID: ${el.id}
 `.trim()).join('\n\n');
 
-    // 3. 构建直接修改代码的 Prompt
     const prompt = `
 我需要你直接修改当前打开的文件 (${document.fileName})。
 
@@ -220,7 +183,6 @@ ${elementsContext}
 3. **最小修改**：只修改涉及的属性或样式，保持其他代码不变。
     `.trim();
 
-    // 4. 发送给 AI 面板
     await tryOpenAIChat(prompt);
 }
 

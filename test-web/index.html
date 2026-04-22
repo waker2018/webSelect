@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920">
+    <title>态势信息激励模块 - TS综合集成测试系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span>TS综合集成测试系统</span>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item active">态势信息激励</a>
+            <a href="../综合测试数据管理模块原型/index.html" class="nav-item">数据管理分析</a>
+            <a href="evaluation.html" class="nav-item">测试评估</a>
+            <a href="#" class="nav-item">系统配置</a>
+        </div>
+        <div class="nav-right">
+            <div class="system-time" id="systemTime">2024-12-19 09:00:00</div>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>管理员</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">态势激励</div>
+                <ul class="sidebar-menu">
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i>模块总览</a></li>
+                    <li><a href="map_plotting.html"><i class="fas fa-map"></i>地图与标绘</a></li>
+                    <li><a href="scenario_editor.html"><i class="fas fa-chess"></i>想定场景编辑</a></li>
+                    <li><a href="simulation.html"><i class="fas fa-play-circle"></i>模拟仿真</a></li>
+                    <li><a href="evaluation.html"><i class="fas fa-chart-pie"></i>测试评估</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">快捷操作</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#"><i class="fas fa-folder-open"></i>打开想定</a></li>
+                    <li><a href="#"><i class="fas fa-rocket"></i>快速仿真</a></li>
+                    <li><a href="#"><i class="fas fa-file-export"></i>导出数据</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 内容区 -->
+        <main class="content">
+            <!-- 欢迎横幅 -->
+            <div class="welcome-banner">
+                <h1 class="welcome-title" style="color: blue;">态势信息激励模块</h1>
+                <p class="welcome-subtitle">提供全流程态势激励能力：地图标绘、想定编辑、模拟仿真与测试评估</p>
+            </div>
+
+            <!-- 功能模块入口 -->
+            <div class="dashboard-grid">
+                <a href="map_plotting.html" class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-map-location-dot"></i>
+                    </div>
+                    <h3 class="module-title">地图与标绘子模块</h3>
+                    <p class="module-desc">电子地图管理与显示，支持CGCS2000/WGS84坐标系，提供通用地图操作及二维TS标绘功能</p>
+                    <div class="module-features">
+                        <span class="tag">电子地图</span>
+                        <span class="tag">坐标转换</span>
+                        <span class="tag">TS标绘</span>
+                    </div>
+                </a>
+
+                <a href="scenario_editor.html" class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-chess-board"></i>
+                    </div>
+                    <h3 class="module-title">想定场景编辑子模块</h3>
+                    <p class="module-desc">配置红蓝双方编组与部署信息，支持拖放式参数化混合编辑，提供场景导入与管理</p>
+                    <div class="module-features">
+                        <span class="tag red">红方配置</span>
+                        <span class="tag blue">蓝方配置</span>
+                        <span class="tag">场景管理</span>
+                    </div>
+                </a>
+
+                <a href="simulation.html" class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <h3 class="module-title" style="color: blue;">测试激励模拟仿真子模块</h3>
+                    <p class="module-desc">加载测试环境支持≥200个平台实体，提供可视化显示、仿真控制、过程监控与人机交互</p>
+                    <div class="module-features">
+                        <span class="tag">环境加载</span>
+                        <span class="tag">仿真控制</span>
+                        <span class="tag">过程监控</span>
+                    </div>
+                </a>
+
+                <a href="evaluation.html" class="module-card">
+                    <div class="module-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="module-title">测试评估子模块</h3>
+                    <p class="module-desc">构建测试时间轴与评估活动，管理≥3层级指标体系，支持多类评估算法</p>
+                    <div class="module-features">
+                        <span class="tag">时间轴</span>
+                        <span class="tag">指标体系</span>
+                        <span class="tag">评估算法</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 系统状态 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="value">12</div>
+                    <div class="label">已加载地图</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-file-lines"></i></div>
+                    <div class="value">8</div>
+                    <div class="label">想定场景</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-cubes"></i></div>
+                    <div class="value">256</div>
+                    <div class="label">平台实体</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="value">15</div>
+                    <div class="label">评估指标</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 更新系统时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+            document.getElementById('systemTime').textContent = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+
+</html>

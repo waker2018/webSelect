@@ -76,24 +76,45 @@ export function generateWebviewContent(
     #ag-toolbar button.active { background: #00d4ff !important; color: #000 !important; }
     #ag-toolbar span { color: #888 !important; font-size: 12px !important; font-family: sans-serif !important; }
     body { padding-top: 50px !important; }
+    #ag-popup {
+        position: fixed;
+        background: #1e1e1e;
+        border: 1px solid #00d4ff;
+        border-radius: 6px;
+        padding: 12px;
+        z-index: 9999999;
+        width: 280px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+        font-family: sans-serif;
+    }
+    #ag-popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    #ag-popup-tag { color: #00d4ff; font-size: 12px; font-weight: bold; font-family: monospace; }
+    #ag-popup-close { background: none !important; border: none !important; color: #666 !important; cursor: pointer !important; font-size: 14px !important; padding: 2px 4px !important; line-height: 1 !important; }
+    #ag-popup-close:hover { color: #fff !important; }
+    #ag-popup-selector { color: #888; font-size: 10px; font-family: monospace; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #ag-popup-input { width: 100%; box-sizing: border-box; background: #2d2d2d; border: 1px solid #444; color: #fff; border-radius: 4px; padding: 6px 8px; font-size: 12px; font-family: sans-serif; resize: vertical; min-height: 54px; margin-bottom: 8px; outline: none; display: block; }
+    #ag-popup-input:focus { border-color: #00d4ff; }
+    #ag-popup-submit { background: #0e639c !important; color: #fff !important; border: none !important; padding: 7px 0 !important; border-radius: 4px !important; cursor: pointer !important; font-size: 12px !important; width: 100% !important; display: block !important; }
+    #ag-popup-submit:hover { background: #1177bb !important; }
 </style>`;
 
     const selectorScript = `
 <script id="ag-selector-script">
 (function() {
     const vscode = acquireVsCodeApi();
-    let isActive = true;
+    let isActive = false;
     let hoveredElement = null;
     const selectedElements = new Set();
     let tooltip = null;
+    let currentPopup = null;
 
     // 创建工具栏
     const toolbar = document.createElement('div');
     toolbar.id = 'ag-toolbar';
     toolbar.innerHTML = \`
-        <button id="ag-toggleBtn" class="active">🎯 选择模式：开启</button>
+        <button id="ag-toggleBtn">⏸️ 选择模式：关闭</button>
         <button id="ag-clearBtn">🗑️ 清除 (<span id="ag-count">0</span>)</button>
-        <span style="margin-left: auto;">悬停高亮，点击选中</span>
+        <span style="margin-left: auto;">Ctrl+点击快速选中 &nbsp;|&nbsp; 开启选择模式后点击选中</span>
     \`;
     document.body.insertBefore(toolbar, document.body.firstChild);
 
@@ -199,8 +220,68 @@ export function generateWebviewContent(
         return a;
     }
 
+    function showPopup(el, info) {
+        hidePopup();
+        const rect = el.getBoundingClientRect();
+        const popup = document.createElement('div');
+        popup.id = 'ag-popup';
+        const selectorText = info.selector.length > 38 ? info.selector.substring(0, 38) + '\u2026' : info.selector;
+        popup.innerHTML =
+            '<div id="ag-popup-header">' +
+                '<span id="ag-popup-tag">&lt;' + info.tag + '&gt;</span>' +
+                '<button id="ag-popup-close">\u2715</button>' +
+            '</div>' +
+            '<div id="ag-popup-selector">' + selectorText + '</div>' +
+            '<textarea id="ag-popup-input" placeholder="\u63cf\u8ff0\u4fee\u6539\u9700\u6c42\uff0c\u4f8b\u5982\uff1a\u6539\u6210\u7ea2\u8272\u3001\u5b57\u53f7\u52a0\u5927\u2026 (Ctrl+Enter \u53d1\u9001)"></textarea>' +
+            '<button id="ag-popup-submit">\u2728 AI \u4fee\u6539</button>';
+        document.body.appendChild(popup);
+        // 定位到元素旁边
+        var pw = 284, ph = 185, margin = 10;
+        var left = rect.right + margin;
+        var top = rect.top;
+        if (left + pw > window.innerWidth - margin) left = rect.left - pw - margin;
+        if (left < margin) left = Math.max(margin, Math.min(rect.left, window.innerWidth - pw - margin));
+        if (top + ph > window.innerHeight - margin) top = Math.max(margin, window.innerHeight - ph - margin);
+        if (top < margin) top = margin;
+        popup.style.left = left + 'px';
+        popup.style.top = top + 'px';
+        currentPopup = popup;
+        document.getElementById('ag-popup-close').addEventListener('click', function(e) {
+            e.stopPropagation();
+            hidePopup();
+        });
+        document.getElementById('ag-popup-submit').addEventListener('click', function(e) {
+            e.stopPropagation();
+            var instruction = document.getElementById('ag-popup-input').value.trim();
+            if (!instruction) { document.getElementById('ag-popup-input').focus(); return; }
+            vscode.postMessage({ type: 'aiModifyRequest', data: info, instruction: instruction });
+            hidePopup();
+        });
+        document.getElementById('ag-popup-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('ag-popup-submit').click();
+            }
+            e.stopPropagation();
+        });
+        setTimeout(function() { var inp = document.getElementById('ag-popup-input'); if (inp) inp.focus(); }, 50);
+    }
+
+    function hidePopup() {
+        if (currentPopup) { currentPopup.remove(); currentPopup = null; }
+    }
+
     document.addEventListener('mousemove', function(e) {
-        if (!isActive) return;
+        const ctrlHeld = e.ctrlKey || e.metaKey;
+        if (!isActive && !ctrlHeld) {
+            if (hoveredElement && !selectedElements.has(hoveredElement)) {
+                hoveredElement.classList.remove('ag-element-hover');
+                hoveredElement = null;
+            }
+            hideTooltip();
+            return;
+        }
         const el = e.target;
         if (el.id && el.id.startsWith('ag-')) return; // 忽略工具栏
         if (el.closest('#ag-toolbar')) return;
@@ -216,10 +297,10 @@ export function generateWebviewContent(
     });
 
     document.addEventListener('click', function(e) {
-        if (!isActive) return;
         const el = e.target;
         if (el.id && el.id.startsWith('ag-')) return;
         if (el.closest('#ag-toolbar')) return;
+        if (!isActive && !e.ctrlKey && !e.metaKey) return;
         e.preventDefault();
         e.stopPropagation();
         const id = assignId(el);
@@ -229,11 +310,12 @@ export function generateWebviewContent(
         selectedElements.add(el);
         updateCount();
         vscode.postMessage({ type: 'elementSelected', data: info });
+        showPopup(el, info);
     }, true);
 
     // 初始化
-    document.body.style.cursor = 'crosshair';
-    vscode.postMessage({ type: 'log', message: '元素选择器已初始化' });
+    document.body.style.cursor = '';
+    vscode.postMessage({ type: 'log', message: '元素选择器已初始化（交互模式）' });
 })();
 </script>`;
 
